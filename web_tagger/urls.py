@@ -19,6 +19,6 @@ from apps.registro.urls import registro_urls
 
 urlpatterns = [
 
-    url(r'^', include(registro_urls)),
+    url(r'^', include(registro_urls,namespace='registro_app')),
     url(r'^admin/', admin.site.urls),
 ]
