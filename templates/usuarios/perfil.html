@@ -1,0 +1,24 @@
+{% extends 'usuario.html' %}
+    {% block title %}
+        Herencia PERFIL GENERAL {{ user.username }}
+    {% endblock %}
+
+    {% block css %}
+    {% endblock %}
+
+    {% block body %}
+        <h1>
+            Bienvenido {{ user.username }} {{ user }}
+        </h1>
+        <h1>
+            @TODO
+        </h1>
+        <h2>
+            aun no tienes tareas de anotador
+        </h2>
+        <h2>
+            aun no tienes tareas de revisor
+        </h2>
+
+    {% endblock %}
+
