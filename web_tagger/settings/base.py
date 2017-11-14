@@ -2,16 +2,12 @@
 Django settings for web_tagger project.
 
 """
-
 import os
-
 from unipath import Path
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 #BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 BASE_DIR = Path(__file__).ancestor(3)
-
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'crem@a7bina*t3&81t-yj1p57e#+75xl@vwr07ze6ijx-4x^45'
@@ -21,6 +17,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['',]
 
+DJANGO_ADMIN_APPS = ['jet.dashboard', 'jet',]
+
 DJANGO_APPS = [ 'django.contrib.admin',
                 'django.contrib.auth',
                 'django.contrib.contenttypes',
@@ -29,15 +27,21 @@ DJANGO_APPS = [ 'django.contrib.admin',
                 'django.contrib.staticfiles',
 ]
 
-THIRD_PARTY_APPS = []
+THIRD_PARTY_APPS = [
 
-LOCAL_APPS = []
+]
+
+LOCAL_APPS = [
+    'apps.registro',
+    'apps.usuarios',
+    'apps.documentos',
+]
 
 #Total APP's
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+INSTALLED_APPS = DJANGO_ADMIN_APPS + DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 
-MIDDLEWARE = [
+MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -96,6 +100,7 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
+STATIC_ROOT = 'static/'
 
 
 LOGGING = {
