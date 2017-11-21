@@ -18,6 +18,8 @@ from apps.registro.urls import registro_urls
 from apps.usuarios.urls import usuarios_urls
 from apps.documentos.urls import documentos_urls
 
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     url(r'^', include(registro_urls,namespace='registro_app')),
@@ -27,3 +29,6 @@ urlpatterns = [
     url(r'^jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),  # Django JET dashboard URLS
     url(r'^admin/', admin.site.urls),
 ]
+
+# Agregando URL de archivos media para deploy s
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

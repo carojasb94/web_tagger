@@ -9,7 +9,7 @@ def get_documento_path(instance, filename):
     :param filename:
     :return:
     """
-    return 'documentos/'
+    return '{0}documentos/{1}'.format(settings.MEDIA_ROOT, filename)
     #return 'user_{0}/{1}'.format(instance.user.id, filename)
 
 #@TODO
@@ -35,6 +35,24 @@ class Documento(models.Model):
 
     archivo = models.FileField(upload_to=get_documento_path)
 
+    juez = models.CharField(max_length=80, blank=True,
+                            null=True, default="")
+    secretario = models.CharField(max_length=80, blank=True,
+                                  null=True, default="")
+    preambulo = models.CharField(max_length=80, blank=True,
+                                 null=True, default="")
+    resultandos = models.CharField(max_length=80, blank=True,
+                                   null=True, default="")
+    considerandos = models.CharField(max_length=80, blank=True,
+                                     null=True, default="")
+    puntos_resolutivos = models.CharField(max_length=80, blank=True,
+                                          null=True, default="")
+    #url = models.SlugField(max_length=80, blank=True,
+    #                       null=True)
+
+    def __str__(self):
+        return "Documento {0} - {1}".format(self.id, self.archivo)
+
 
 class Anotacion(models.Model):
     """  """
@@ -49,6 +67,10 @@ class Anotacion(models.Model):
                                 on_delete=models.CASCADE,
                                 related_name='anotador')
 
+    is_done = models.BooleanField(default=False)
+
+    def __str__(self):
+        return "Anotacion {0} - {1}".format(self.id, self.archivo)
 
 class TAG(models.Model):
     """  """
@@ -56,18 +78,26 @@ class TAG(models.Model):
     texto = models.CharField(max_length=60, blank=True,
                              null=True, default="")
 
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return "{0}".format(self.texto)
 
 class Oracion(object):
     """  """
     tag = models.ForeignKey(TAG, related_name='tag')
 
-    texto = models.CharField(max_length=60, blank=True,
+    texto = models.CharField(max_length=500, blank=True,
                              null=True, default="")
 
     evaluado_por = models.ForeignKey(settings.AUTH_USER_MODEL,
                                      on_delete=models.CASCADE,
                                      related_name='etiquetador')
 
+    is_correcta = models.BooleanField(default=True)
+
+    def __str__(self):
+        return "Oracion {0}".format(self.texto)
 
 class EstadoEtiquetado(object):
     """  """

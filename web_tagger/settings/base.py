@@ -103,6 +103,10 @@ STATIC_URL = '/static/'
 STATIC_ROOT = 'static/'
 
 
+MEDIA_URL  = '/media/'
+MEDIA_ROOT = 'media/'
+
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
