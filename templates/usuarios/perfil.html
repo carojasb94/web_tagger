@@ -1,26 +1,48 @@
 {% extends 'usuario.html' %}
-    {% block title %}
-        Herencia PERFIL GENERAL {{ user.username }}
-    {% endblock %}
+{% block title %}
+    Herencia PERFIL GENERAL {{ user.username }}
+{% endblock %}
 
-    {% block css %}
-    {% endblock %}
+{% block css %}
+{% endblock %}
 
-    {% block body %}
-        <h1>
-            Bienvenido {{ user.username }} {{ user }}
-        </h1>
-        <h1>
-            @TODO
-        </h1>
+{% block body %}
+    <h1>
+        Bienvenido {{ user.username }} {{ user }}
+    </h1>
+    <h1>
+        @TODO
+    </h1>
+
+
+    {% comment %} SECCION DE TAREAS DE ANOTACION {% endcomment %}
+    {% if anotaciones_pendientes %}
+        {% for anotacion in anotaciones_pendientes %}
+            <h2>
+                {{ anotacion }}
+            </h2>
+            <div>
+                <embed src="{{ anotacion.get_url_file }}" width="800px" height="800px" />
+            </div>
+        {% endfor %}
+
+    {% else %}
         <h2>
             aun no tienes tareas de anotador
-            {{  }}
         </h2>
+    {% endif %}
+
+    {% comment %} SECCION DE TAREAS DE REVISION {% endcomment %}
+    {% if revisiones_pendientes %}
+        {% for revision in revisiones_pendientes %}
+            <h2>
+                {{ revision }}
+            </h2>
+        {% endfor %}
+    {% else %}
         <h2>
             aun no tienes tareas de revisor
         </h2>
-
-        <embed src="file_name.pdf" width="800px" height="2100px" /
-    {% endblock %}
+    {% endif %}
+{% endblock %}
 

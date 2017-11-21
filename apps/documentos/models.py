@@ -53,6 +53,9 @@ class Documento(models.Model):
     def __str__(self):
         return "Documento {0} - {1}".format(self.id, self.archivo)
 
+    def get_path(self):
+        return self.archivo.url
+
 
 class Anotacion(models.Model):
     """  """
@@ -70,7 +73,11 @@ class Anotacion(models.Model):
     is_done = models.BooleanField(default=False)
 
     def __str__(self):
-        return "Anotacion {0} - {1}".format(self.id, self.archivo)
+        return "Anotacion {0} - {1}".format(self.id, self.documento)
+
+    def get_url_file(self):
+        return self.documento.get_path()
+
 
 class TAG(models.Model):
     """  """

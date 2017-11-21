@@ -7,6 +7,15 @@ from django.views.generic import TemplateView
 
 def home(request):
     print("home request")
+
+    if request.user.is_authenticated():
+        #import ipdb; ipdb.set_trace()
+        print("el usuario esta autenticado")
+        #return redirect(reverse('home_app:home-page'))
+
+        #@todo validar si es anotador o revisor
+        return redirect(reverse('usuarios_app:perfil_home'))
+
     return render(request, template_name='home.html',
                   context={})
 
@@ -19,7 +28,7 @@ def do_login(request):
 
     print("do_login request")
     if request.user.is_authenticated():
-        import ipdb; ipdb.set_trace()
+        #import ipdb; ipdb.set_trace()
         print("el usuario esta autenticado")
         #return redirect(reverse('home_app:home-page'))
 
