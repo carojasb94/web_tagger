@@ -24,7 +24,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     url(r'^', include(registro_urls,namespace='registro_app')),
     url(r'^', include(usuarios_urls,namespace='usuarios_app')),
-    url(r'^', include(documentos_urls,namespace='usuarios_app')),
+    url(r'^', include(documentos_urls,namespace='documentos_app')),
     url(r'^jet/', include('jet.urls', namespace='jet')),  # Django JET URLS
     url(r'^jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),  # Django JET dashboard URLS
     url(r'^admin/', admin.site.urls),

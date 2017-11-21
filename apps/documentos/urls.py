@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-
 from django.conf.urls import url
-from django.contrib import admin
 
-#from .views import (PerfilView, )
+from .views import (AnotacionView)
 
 
 documentos_urls = [
-    #url(r'^revisor$', RevisorView, name='revisor_home'),
+    url(r'^anotacion/(?P<id>\d+)/$', AnotacionView, name='crear_anotacion'),
 ]
 
 

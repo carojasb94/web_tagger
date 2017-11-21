@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import json
 from django.db import models
 from django.conf import settings
 
@@ -9,7 +10,7 @@ def get_documento_path(instance, filename):
     :param filename:
     :return:
     """
-    return '{0}documentos/{1}'.format(settings.MEDIA_ROOT, filename)
+    return 'documentos/{0}'.format(filename)
     #return 'user_{0}/{1}'.format(instance.user.id, filename)
 
 #@TODO
@@ -78,6 +79,14 @@ class Anotacion(models.Model):
     def get_url_file(self):
         return self.documento.get_path()
 
+    def get_texto(self):
+        return json.loads(self.documento.texto_html)
+
+    def set_texto(self, texto):
+        self.documento.texto_html = json.dumps(texto)
+
+    def save_documento(self):
+        self.documento.save()
 
 class TAG(models.Model):
     """  """

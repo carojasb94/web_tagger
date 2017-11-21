@@ -21,6 +21,7 @@
             <h2>
                 {{ anotacion }}
             </h2>
+            <a href="{% url 'documentos_app:crear_anotacion' anotacion.id %}">Ir a esta anotacion</a>
             <div>
                 <embed src="{{ anotacion.get_url_file }}" width="800px" height="800px" />
             </div>
