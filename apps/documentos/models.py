@@ -31,7 +31,7 @@ class Documento(models.Model):
     organo_jurisdiccional = models.CharField(max_length=60, blank=True,
                                 null=True, default="")
 
-    texto_html = models.CharField(max_length=60, blank=True,
+    texto_html = models.CharField(max_length=300000, blank=True,
                                   null=True, default="")
 
     archivo = models.FileField(upload_to=get_documento_path)
