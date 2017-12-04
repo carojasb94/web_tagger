@@ -39,24 +39,54 @@ class Command(BaseCommand):
             print(exit_code)
             #pdftotext -layout -raw -nopgbrk -q /home/thrasher/PycharmProjects/web_tagger/media/documentos/sentencia_ejemplo.PDF a.demo
             _file = open(os.path.join(root_path, filepath_prov))
+            all_lines = list()
             all_words = list()
-
+            dict_words = dict()
+            import ipdb; ipdb.set_trace()
+            i=0
             for line in _file.readlines():
                 #Abrir el nuevo archivo generado
                 #Limpiando los caracteres raros y lineas vacias
                 prov_line = line.replace('\xef\x81\xa1', '').replace('\n','').replace('\xef\x82\xb7','')
+                print(prov_line)
                 if prov_line:
-                    all_words.append(prov_line)
+                    all_lines.append(prov_line)
+                    all_words += prov_line.split(' ')
+
+                    #Agregando prov_line
+                    for word in prov_line.split(' '):
+                        dict_words[i] = word
+                        i+=1
+
                 continue
+
+
+
             #print(all_words)
-            print(type(anotacion.get_texto()))
-            print(type(list(anotacion.get_texto())))
+            print("TOTAL DE LINEAS: ")
+            print(len(all_lines))
+            print("TOTAL DE PALABRAS: ")
+            print(len(all_words))
+            print("TOTAL Longitud texto(array): ")
+            print(len(str(all_words)))
+
+
+            print("TOTAL PALABRAS(dict): ")
+            print(len(dict_words))
+            print("LEN PALABRAS(dict): ")
+            print(len(str(dict_words)))
+
+
+            #print(prov_line)
+            #print(type(anotacion.get_texto()))
+            #print(type(list(anotacion.get_texto())))
             #import ipdb; ipdb.set_trace()
-            print(str(anotacion.get_texto()))
-            print(len(anotacion.get_texto()))
+            #print(str(anotacion.get_texto()))
+            #print(len(anotacion.get_texto()))
             #print(list(anotacion.get_texto()))
 
-            anotacion.set_texto(json.dumps(['ESTO','es','una','lista','de','palabras','alv',':v']))
+            #anotacion.set_texto(json.dumps(['ESTO','es','una','lista','de','palabras','alv',':v']))
+            anotacion.set_texto(json.dumps(all_words))
             anotacion.save_documento()
 
             #LINEAS  DE TEST PARA POPEN
