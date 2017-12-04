@@ -1,0 +1,44 @@
+{% extends 'usuario.html' %}
+{% load static %}
+{% load staticfiles %}
+
+{% block title %}
+    Complementar informacion del documento
+{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block content %}
+    <div class="col-4">
+            {% if anotacion_id %}
+            <form method="POST" action="{% url 'documentos_app:crear_anotacion' anotacion_id %}">
+            {% endif %}
+            <form method="get" action="/anotacion/{{ anotacion_id }}">
+                {% csrf_token %}
+                {% for field in documento_form %}
+                  <div class="form-group">
+                    <label for="{{ field.name }}">{{ field.name }}</label>
+                    <input class="form-control"
+                           name="{{ field.name }}" id="{{ field.name }}"
+                           placeholder="{{ field.name }}">
+                  </div>
+                {% endfor %}
+                <button class="btn btn-primary"
+                        type="submit" name="enviar">Enviar
+                </button>
+            </form>
+          <a class="btn btn-primary" href="/anotacion/{{ anotacion_id }}">enviar_custom</a>
+
+        <h4>
+            Para poder complementar la informacion del archivo,
+            se muestra el archivo original para encontrar los datos
+        </h4>
+        <div>
+          <embed src="{{ documento.get_path }}" width="800px" height="800px" />
+        </div>
+    </div>
+{% endblock %}
+
+
+

@@ -16,8 +16,8 @@ def home(request):
         #@todo validar si es anotador o revisor
         return redirect(reverse('usuarios_app:perfil_home'))
 
-    return render(request, template_name='home.html',
-                  context={})
+    return redirect(reverse('registro_app:login'))
+    #return render(request, template_name='home.html', context={})
 
 def do_login(request):
     """
