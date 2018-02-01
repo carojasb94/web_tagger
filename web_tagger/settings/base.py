@@ -15,7 +15,7 @@ SECRET_KEY = 'crem@a7bina*t3&81t-yj1p57e#+75xl@vwr07ze6ijx-4x^45'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['',]
+ALLOWED_HOSTS = ['*',]
 
 DJANGO_ADMIN_APPS = ['jet.dashboard', 'jet',]
 
@@ -29,6 +29,7 @@ DJANGO_APPS = [ 'django.contrib.admin',
 
 THIRD_PARTY_APPS = [
     'widget_tweaks',
+    'django_extensions',
 ]
 
 LOCAL_APPS = [

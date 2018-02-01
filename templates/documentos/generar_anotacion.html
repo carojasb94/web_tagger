@@ -7,25 +7,272 @@
 {% endblock %}
 
 {% block content %}
-    <div class="col-12">
-      <h3>@TODO, agregar wysywyg para editar texto</h3>
-      <div>
 
+<div class="row ">
+
+    <div class="col-sm-6" style="background-color:lavender;">
+        6
+      <div class="panel panel-default">
+        <div class="panel-body">
+            <h4>Modos de selección</h4>
+            <button class="btn  btn-xs" name="enviar" id="modo_palabras">Seleccion por Palabra.</button>
+            <button class="btn btn-primary btn-xs" name="enviar" id="modo_texto">Seleccionar porción de texto.</button>
+                {% comment %}
+                    <a href="#" class="btn btn-primary btn-xs col-lg-12" style="margin-bottom:4px;white-space: normal;"></a>
+                   <a href="#" class="btn btn-primary btn-xs col-lg-12" style="margin-bottom:4px;white-space: normal;"></a>
+                {% endcomment %}
+            </div>
       </div>
     </div>
 
+    <div class="col-sm-3" style="background-color:lavender;">TEXTO SELECCIONADO
+        <p>
+          <textarea class="texto_seleccionado">DUMMY  <span id="0_esto">esto</span></textarea>
+        </p>
+        <div id="texto_seleccionado">
+        </div>
 
-    <div class="col-12">
-      <h3>Archivo Original (PDF)</h3>
-      <div>
-          <embed src="{{ anotacion.get_url_file }}" width="800px" height="800px" />
-      </div>
     </div>
-    <div class="col-12">
-      <h3>Texto plano:</h3>
-      <div>
-          <p> {{ anotacion.get_texto }}</p>
-      </div>
+
+    <div class="col-sm-3" style="background-color:lavender;"> 3
     </div>
+
+</div>
+
+
+
+<div class="row ">
+    <div class="col-sm-8" style="background-color:lavenderblush;"id="textfile-buttons">
+      {% comment %} Generando botones por cada palabra
+          {% for palabra in palabras %}
+              <button class="btn btn-xs btn-primary">{{ palabra }}</button>
+          {% endfor %}
+      {% endcomment %}
+          HOLA MUNDO
+        <h3>Texto plano:</h3>
+
+        <div id="texto_plano">
+        </div>
+
+        <div class="pdf">
+          <h3>Archivo Original (PDF)</h3>
+          <div>
+              <embed src="{{ anotacion.get_url_file }}" width="800px" height="800px" />
+          </div>
+        </div>
+    </div>
+
+    <div class="col-sm-4" style="background-color:lavender;">.col-sm-3
+      <div class="panel panel-default">
+        <div class="panel-body">
+            <h4>Etiquetar: </h4>
+             <select id="seleccionar_modo">
+              <option value="palabra">Etiquetar palabra</option>
+              <option value="referencia_articulo">Referencia a articulo</option>
+              <option value="referencia_jurisprudencia">Referencia a jurisprudencia</option>
+              <option value="texto_articulo">Texto de articulo</option>
+              <option value="texto_jurisprudencia">Texto de jurisprudencia</option>
+            </select>
+            {% comment %}
+                <a href="#" class="btn btn-primary btn-xs col-lg-12" style="margin-bottom:4px;white-space: normal;"></a>
+               <a href="#" class="btn btn-primary btn-xs col-lg-12" style="margin-bottom:4px;white-space: normal;"></a>
+            {% endcomment %}
+        </div>
+      </div>
+        <div class="panel panel-default texto_seleccionado"  id="referencia_jurisprudencia"  style="background-color:#7FB1DC; display: none;">
+            <h4>Etiquetar Referencia a jurisprudencia</h4>
+          <div class="texto" id="referencia_jurisprudencia_texto">
+            <p>
+              <textarea >
+                  DUMMY
+                  <span id="0_esto">esto</span>
+              </textarea>
+            </p>
+          </div>
+          <div class="palabras" id="referencia_jurisprudencia_palabras">
+          </div>
+          <div>
+              <button class="btn  btn-xs btn-primary" name="enviar" id="referencia_jurisprudencia_enviar"> Guardar </button>
+          </div>
+        </div>
+
+        <div class="panel panel-default texto_seleccionado"  id="texto_articulo"  style="background-color:#7FB1DC; display: none;">
+            <h4>Etiquetar Texto de articulo</h4>
+          <div class="input-val texto" id="texto_articulo_texto">
+            <p>
+              <textarea >
+                  DUMMY
+                  <span id="0_esto">esto</span>
+              </textarea>
+            </p>
+          </div>
+          <div class="input-val palabras" id="texto_articulo_palabras">
+          </div>
+          <div>
+              <button class="btn  btn-xs btn-primary" name="enviar" id="texto_articulo_enviar"> Guardar </button>
+          </div>
+        </div>
+
+        <div class="panel panel-default texto_seleccionado"  id="texto_jurisprudencia"  style="background-color:#7FB1DC; display: none;">
+            <h4>Etiquetar Texto de jurisprudencia</h4>
+          <div class="texto" id="texto_jurisprudencia_texto">
+            <p>
+              <textarea >
+                  DUMMY
+                  <span id="0_esto">esto</span>
+              </textarea>
+            </p>
+          </div>
+          <div class="palabras" id="texto_jurisprudencia_palabras">
+          </div>
+          <div>
+              <button class="btn  btn-xs btn-primary" name="enviar" id="texto_jurisprudencia_enviar"> Guardar </button>
+          </div>
+        </div>
+
+      {% comment %} AGREGANDO PANEL DE EDICION PARA ETIQUETADO TEXTO ARTICULO
+      <div class="panel panel-default">
+        <div class="panel-body">
+            <h4>Etiquetar: </h4>
+             <select id="seleccionar_modo">
+              <option value="palabra">Etiquetar palabra</option>
+              <option value="referencia_articulo">Referencia a articulo</option>
+              <option value="referencia_jurisprudencia">Referencia a jurisprudencia</option>
+              <option value="texto_articulo">Texto de articulo</option>
+              <option value="texto_jurisprudencia">Texto de jurisprudencia</option>
+            </select>
+        </div>
+      </div>
+      {% endcomment %}
+            {% comment %}
+                <a href="#" class="btn btn-primary btn-xs col-lg-12" style="margin-bottom:4px;white-space: normal;"></a>
+               <a href="#" class="btn btn-primary btn-xs col-lg-12" style="margin-bottom:4px;white-space: normal;"></a>
+            {% endcomment %}
+
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block js_custom %}
+
+<script>
+
+//  GUARDAR LAS PALABRAS EXTRAIDAS DEL ARCHIVO
+//var total_palabras = ["esto","es","un","demo","de","palabras"];
+var total_palabras = {{ palabras|safe }};
+// Genera un boton por palabra, para poder etiquetar palabras
+
+// para saber que esta etiquetando, si palabras o texto
+var seleccion_activa="";
+// para saber que esta etiquetando (palabra, texto articulo, etc...)
+var div_activo = "";
+
+
+$('#modo_palabras').on('click', function(){
+    console.log("Click a modo palabras");
+    $('#texto_plano').html('');
+    total_palabras.forEach(function(element, index){
+            $('#texto_plano').append('<button class="btn btn-xs palabra" id='+
+                    index+'_'+element+'>' +element+'</button> ');
+    });
+    seleccion_activa = "palabras";
+});
+
+// GENERA SPAN'S POR LAS PALABRAS, PARA ETIQUETAR TEXTO CONTINUO
+$('#modo_texto').on('click', function(){
+    console.log("Click a modo modo_texto");
+    $('#texto_plano').html('');
+    total_palabras.forEach(function(element, index){
+            $('#texto_plano').append('<span id='+index+'>'+element+'</span> ');
+    });
+    seleccion_activa = "texto";
+});
+
+
+$('#seleccionar_modo').on('change', function(){
+    var seleccion = $('#seleccionar_modo');
+    var div_seleccion = '#'+seleccion.val(); //referencia_articulo;
+    div_activo = $(div_seleccion);
+
+    console.log(seleccion);
+    console.log(seleccion.val());
+    $('.texto_seleccionado').hide();
+    div_activo.show();
+});
+
+
+//AGREGANDO FUNCIONALIDAD A LOS 'BOTONES' de las palabras
+$('.palabra').on('click', function(){
+    console.log("DIO CLICK A UNA PALABRA");
+});
+
+//AGREGANDO FUNCIONALIDAD A LOS 'BOTONES' de las palabras
+$('#texto_plano').on('click', '.palabra', function(a,b,c){
+    //console.log("DIO CLICK A UNA PALABRA (delegacion de funcion)");
+    console.log(this.id, $(this).html());
+    if (div_activo){
+            //console.log($(div_activo).appendTo('.'+seleccion_activa));
+            console.log($(div_activo).find('.'+seleccion_activa));
+        //EVITAR DUPLICIDAD DE ELEMENTOS en el caso del etiquetado por palabras
+        if ($(div_activo).find('.'+seleccion_activa).find("#"+this.id).length){
+            console.log("YA EXISTE ESE ELEMNTO")
+        }
+        else{
+            $(div_activo).find('.'+seleccion_activa).append( '<span id='+this.id+'>'+ $(this).html()+'</span> ');
+
+        }
+    }
+    else{
+        console.log("NO HAY UN DIV ACTIVO");
+    }
+
+});
+
+
+$("#texto_plano").mouseup(function(e) {
+    e.preventDefault();
+    if (seleccion_activa == "texto"){
+    console.log("MOUSE UP EN TEXTO PLANO");
+        var text="";
+      //alert( "Handler for .mouseup() called." );
+
+        // OBTENIENDO EL TEXTO SELECCIONADO
+        if (window.getSelection) {
+            text = window.getSelection().toString();
+        } else if (document.selection && document.selection.type != "Control") {
+            text = document.selection.createRange().text;
+        }
+    console.log(text);
+
+    }
+
+});
+
+
+/////   FUNCIONALIDADD PARA COPIAR EL TEXTO SELECCIONADO
+    var text = "";
+
+    alert(text);
+</script>
+
+<script type="text/javascript">
+
+    //console.log("CUSTOM SCRIPT DE FUNCIONALIDAD A BUTON MOUSE");
+    if (document.addEventListener) { // IE >= 9; other browsers
+        document.addEventListener('contextmenu', function(e) {
+            console.log("CONTEXT MENU OPEN");
+            //alert("You've tried to open context menu"); //here you draw your own menu
+            e.preventDefault();
+        }, false);
+    } else { // IE < 9
+        document.attachEvent('oncontextmenu', function() {
+            console.log("CONTEXT MENU OPEN");
+            alert("You've tried to open context menu");
+            window.event.returnValue = false;
+        });
+    }
+</script>
 
 {% endblock %}

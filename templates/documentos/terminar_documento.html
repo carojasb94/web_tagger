@@ -10,6 +10,8 @@
 {% endblock %}
 
 {% block content %}
+
+<div class="row">
     <div class="col-4">
             {% if anotacion_id %}
             <form method="POST" action="{% url 'documentos_app:crear_anotacion' anotacion_id %}">
@@ -38,6 +40,8 @@
           <embed src="{{ documento.get_path }}" width="800px" height="800px" />
         </div>
     </div>
+</div>
+
 {% endblock %}
 
 

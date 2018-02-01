@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 from .models import (Documento, Anotacion,
-                     TAG, Oracion, EstadoEtiquetado)
+                     TAG, Oracion, EstadoEtiquetado, Clasificacion)
 
 
 class DocumentoInline(admin.TabularInline):
@@ -27,6 +27,10 @@ class AnotacionAdmin(admin.ModelAdmin):
     pass
 
 
+class ClasificacionAdmin(admin.ModelAdmin):
+    pass
+
+
 class TAGAdmin(admin.ModelAdmin):
     pass
 
@@ -43,5 +47,7 @@ admin.site.register(Documento, DocumentoAdmin)
 admin.site.register(Anotacion, AnotacionAdmin)
 #admin.site.register(Oracion, OracionAdmin)
 admin.site.register(TAG, TAGAdmin)
+admin.site.register(Clasificacion, ClasificacionAdmin)
+
 #admin.site.register(EstadoEtiquetado, EstadoEtiquetadoAdmin)
 

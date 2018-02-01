@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+
+import json
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.urlresolvers import reverse
 from .models import (Anotacion, Documento)
@@ -13,7 +15,11 @@ def AnotacionView(request, id):
     documento = anotacion.documento
     if request.method == 'POST':
         return render(request, template_name='documentos/generar_anotacion.html',
-                      context={'anotacion':anotacion})
+                      context={'anotacion':anotacion,
+                               'palabras': json.dumps(
+                               json.loads(anotacion.get_texto())[:500]
+                               ),
+                               })
 
     if ((not documento.juez) or (not documento.secretario) or (not documento.preambulo)
         or (not documento.resultandos) or (not documento.considerandos)
@@ -27,7 +33,11 @@ def AnotacionView(request, id):
                         kwargs={'anotacion_id':anotacion_id}
                         )
     return render(request, template_name='documentos/generar_anotacion.html',
-                  context={'anotacion':anotacion})
+                  context={'anotacion':anotacion,
+                           'palabras': json.dumps(
+                               json.loads(anotacion.get_texto())[:500]
+                           ),
+                           })
 
 
 def TerminarDocumentoView(request, id):

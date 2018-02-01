@@ -4,6 +4,7 @@ import json
 from django.db import models
 from django.conf import settings
 
+
 def get_documento_path(instance, filename):
     """
     :param instance:
@@ -12,6 +13,7 @@ def get_documento_path(instance, filename):
     """
     return 'documentos/{0}'.format(filename)
     #return 'user_{0}/{1}'.format(instance.user.id, filename)
+
 
 #@TODO
 #Se pueden ordenar los documentos segun la jerarquia que mas convenga
@@ -88,16 +90,32 @@ class Anotacion(models.Model):
     def save_documento(self):
         self.documento.save()
 
+
+class Clasificacion(models.Model):
+    """ """
+
+    texto = models.CharField(max_length=60, blank=True,
+                             null=True, default="")
+
+    def __str__(self):
+        return "{0}".format(self.texto)
+
+
 class TAG(models.Model):
     """  """
 
     texto = models.CharField(max_length=60, blank=True,
                              null=True, default="")
 
+    clasificacion = models.ForeignKey(Clasificacion)
     is_active = models.BooleanField(default=True)
+    subtag = models.ForeignKey('self', blank=True, null=True)
+
 
     def __str__(self):
         return "{0}".format(self.texto)
+
+
 
 class Oracion(object):
     """  """
@@ -114,6 +132,7 @@ class Oracion(object):
 
     def __str__(self):
         return "Oracion {0}".format(self.texto)
+
 
 class EstadoEtiquetado(object):
     """  """
