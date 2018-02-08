@@ -5,29 +5,10 @@ import subprocess
 from django.core.management.base import BaseCommand, CommandError
 from apps.documentos.models import Anotacion
 import json
-
-
-
-def dar_formato_a_texto(archivo):
-    """
-    Dar formato al texto a modo de separar resultandos, etc.
-    :param archivo:
-    :return:
-    """
-    arch = open (archivo, "r")
-    text = arch.readlines()
-    arch.close()
-
-    ruta  = sys.argv[3]
-    ruta  = ruta
-    texto = acomodaTexto(text, ruta)
-    texto = marcarConsiderandos(texto)
-    texto = limpiarTexto(texto)
-    texto = restaurarNumeros(texto)
-
-    arch = open (sys.argv[2], "w")
-    arch.write(texto)
-    arch.close()
+#from apps.documentos.utils import funciones
+from apps.documentos.utils.funciones import (acomodaTexto, marcarConsiderandos,
+                                             limpiarTexto, restaurarNumeros,
+                                             convertir_texto_a_bd, dar_formato_a_texto)
 
 
 class Command(BaseCommand):
@@ -54,24 +35,31 @@ class Command(BaseCommand):
             filepath_prov = "{0}.prov".format(filepath.split('/')[-1])
 
             command = ["pdftotext", "-layout", "-raw", "-q",
-                       root_path + filepath,
-                       filepath_prov
+                       root_path + filepath, filepath_prov
                        ]
+
             print(" ".join(command))
             proceso = subprocess.Popen(command, stdout=subprocess.PIPE)
             exit_code = proceso.wait()
             print(exit_code)
 
             ## GREGANDO SCRIPT QUE DA FORMATO AL ARCHIVO EXTRAIDO CON PDFTOTEXT
-            #python2 edit_txt.py salida1.txt salida2.txt ./
-            command = ["pdftotext", "-layout", "-raw", "-q",
-                       root_path + filepath,
-                       filepath_prov
-                       ]
+            texto = dar_formato_a_texto(filepath_prov, new_path=None)
+            print("termino de dar formato...")
+
+            # Interpretar el texto formateado
+            all_words = convertir_texto_a_bd(texto)
+
+            #anotacion.set_texto(json.dumps(['ESTO','es','una','lista','de','palabras','alv',':v']))
+            #Guardar la conversion final del texto en la bd
+            anotacion.set_texto(json.dumps(all_words))
+            anotacion.save_documento()
+            return 0
 
 
 
             #pdftotext -layout -raw -nopgbrk -q /home/thrasher/PycharmProjects/web_tagger/media/documentos/sentencia_ejemplo.PDF a.demo
+            """
             _file = open(os.path.join(root_path, filepath_prov))
             all_lines = list()
             all_words = list()
@@ -80,6 +68,8 @@ class Command(BaseCommand):
 
             #ABRIENDO ARCHIVO CON CORRECION
             _file = open(os.path.join(root_path, "docs/pdftotext/salida2.txt"))
+            """
+
             i=0
             for line in _file.readlines():
                 #Abrir el nuevo archivo generado
@@ -96,7 +86,7 @@ class Command(BaseCommand):
             anotacion.save_documento()
 
 
-
+            """
             i=0
             for line in _file.readlines():
                 #Abrir el nuevo archivo generado
@@ -111,10 +101,8 @@ class Command(BaseCommand):
                     for word in prov_line.split(' '):
                         dict_words[i] = word
                         i+=1
-
                 continue
-
-
+            """
 
             #print(all_words)
             print("TOTAL DE LINEAS: ")
