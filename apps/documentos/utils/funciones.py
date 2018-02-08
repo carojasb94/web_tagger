@@ -1,12 +1,57 @@
 # -*- coding: utf-8 -*-
-import nltk
-import re
+"""  """
 
-####################################################################################################
-####################################################################################################
+import re
+import nltk
+
+from django.conf import settings
+
+
+'''
+class Settings(object):
+    """ """
+    def __init__(self):
+        self.DICCIONARIOS_PATH = "/nums_para_editar_txt.dat"
+settings = Settings()
+'''
+
+###### VARIABLES GLOBALES PARA ENCONTRAR/SEPARAR SECCIONES IMPORTANTES
+
+patterns = [r"R\W*?E\W*?S\W*?U\W*?L\W*?T\W*?A\W*?N\W*?D\W*?O\W*?\n$",
+            r"C\W*?O\W*?N\W*?S\W*?I\W*?D\W*?E\W*?R\W*?A\W*?N\W*?D\W*?O\W*?\n$",
+            r"R\W*?E\W*?S\W*?U\W*?E\W*?L\W*?V\W*?E\W*?\n$"]
+
+#VARIABLE GLOBAL PARA UBICAR 'RESULTANDO... CONSIDERANDO... RESUELVE'
+textPATTERNS = []
+#{(NUMERO NUEVO ex. %=%1%=%, <TARGET TEXT>) : NUMERO ORIGINAL ex. PRIMERO}
+dicc_textREPLACE = {}
+
+
+####### VARIABLES GLOBALES PARA ELIMINAR SIMBOLOS
+
+chars1 = [':', ',', ';', '.', '!', '?', '<', '>',
+          '+', '%', '$', ' ', '/', '=', '@', '*',
+          '(', ')', '[', ']', '{', '}', '-']
+#acentos
+chars2 = ['\xc3\xb1', '\xc3\x91', '\xc3\xa1', '\xc3\xa9', '\xc3\xad',
+          '\xc3\xb3', '\xc3\xba', '\xc3\x81', '\xc3\x89', '\xc3\x8d',
+          '\xc3\x93', '\xc3\x9a', '\xc3\xbc', '\xc3\x9c']
+
+#comillas
+chars3 = ['\xe2\x80\x9c', '\xe2\x80\x9d', '\xe2\x80\x99']
+
+charsTOreplace = {'\xc2\xa1': " -! ", '\xc2\xbf': " -? ", '\xc2\x91': ' " '}
+
+#inicio de simbolos
+simbolox = ['\xc2', '\xc3', '\xe2']
+
+
+############################################
+############################################
 """ MARCAR CONSIDERANDOS """
-####################################################################################################
-####################################################################################################
+############################################
+############################################
+
 
 def buscarSaltoLinea(considerandoTexto, inicioResolutivos):
     while inicioResolutivos > 0:
@@ -57,7 +102,8 @@ def buscaResolutivosAUX (considerandoTexto, pattern):
 def buscaResolutivos(considerandoTexto):
     #recibe un texto en parrafos
     global textPATTERNS
-    import ipdb; ipdb.set_trace()
+
+    #import ipdb; ipdb.set_trace()
     inicioResolutivos = -1
 
     if textPATTERNS:
@@ -66,6 +112,7 @@ def buscaResolutivos(considerandoTexto):
             return buscaResolutivosAUX(considerandoTexto, pattern)
 
     return (considerandoTexto, None)
+
 
 def traerConsiderandos(text):
     #recibe un texto en parrafos
@@ -78,7 +125,7 @@ def traerConsiderandos(text):
         line = line.split('\n')
         for l in line:
             numero = re.search(r"%\=%\d+%\=%", l) #Buscamos los numeros marcados
-            print("")
+            #print("")
             if numero:
                 number = numero.group() #en otra variable x si se necesita recuperar el texto
                             #al buscar las jurisprudencias
@@ -89,16 +136,16 @@ def traerConsiderandos(text):
                     #Si esta en el orden correcto
                     considerandoNumber += 1
                     considerandos.append(considerandoTexto)
-                    print("considerando: {0}".format(considerandoTexto))
+                    #print("considerando: {0}".format(considerandoTexto))
                     considerandoTexto = "\n\n%%=%%CONSIDERANDO_" + str(numero) + "%%=%%\n\n"
-                    print("considerando: {0}".format(considerandoTexto))
+                    #print("considerando: {0}".format(considerandoTexto))
                 else:
                     considerandoTexto += "\n" + number + "\n"
             else:
                 considerandoTexto += l
-                print("else: ")
-                print("considerandoTexto: "+ considerandoTexto)
-                print("l: "+l)
+                #print("else: ")
+                #print("considerandoTexto: "+ considerandoTexto)
+                #print("l: "+l)
 
         considerandoTexto += "\n\n"
 
@@ -109,7 +156,7 @@ def traerConsiderandos(text):
     return considerandos
 
 
-def jseparaConsiderando(bloqueTexto, pattern):
+def separaConsiderando(bloqueTexto, pattern):
     aux         = re.search(pattern, bloqueTexto, re.IGNORECASE)
     aux         = aux.group()
     inicioConsi = bloqueTexto.find(aux) #Buscamos donde inician los considerandos
@@ -118,7 +165,6 @@ def jseparaConsiderando(bloqueTexto, pattern):
     consider = consider.replace(aux, aux+"\n\n")
 
     return (inicio, consider)
-
 
 
 def marcarConsiderandos (text):
@@ -153,6 +199,7 @@ def marcarConsiderandos (text):
 """ ACOMODAR TEXTO """
 #######################
 #######################
+
 
 def encadena (text):
     cad = ""
@@ -198,7 +245,6 @@ def buscarEncabezados (text):
         i += 1
 
     return []
-
 
 def ersteAcomodaTexto (text):
     # primero eliminamos numeros de pagina y ecabezados
@@ -269,29 +315,21 @@ def ersteAcomodaTexto (text):
     return newtext
 
 
-patterns = [r"R\W*?E\W*?S\W*?U\W*?L\W*?T\W*?A\W*?N\W*?D\W*?O\W*?\n$",
-            r"C\W*?O\W*?N\W*?S\W*?I\W*?D\W*?E\W*?R\W*?A\W*?N\W*?D\W*?O\W*?\n$",
-            r"R\W*?E\W*?S\W*?U\W*?E\W*?L\W*?V\W*?E\W*?\n$"]
-
-textPATTERNS     = [] #VARIABLE GLOBAL PARA UBICAR 'RESULTANDO... CONSIDERANDO... RESUELVE'
-dicc_textREPLACE = {} #{(NUMERO NUEVO ex. %=%1%=%, <TARGET TEXT>) : NUMERO ORIGINAL ex. PRIMERO}
-
 def findImpirtantThings(line):
     global patterns
 
     if (len(patterns)>1) and (re.search(patterns[0], line, re.IGNORECASE)):
-        import ipdb; ipdb.set_trace()
+        #import ipdb; ipdb.set_trace()
         aux = re.search(patterns[0], line, re.IGNORECASE)
         del patterns[0]
         return aux
 
     elif re.search(patterns[0], line, re.IGNORECASE):
-        import ipdb; ipdb.set_trace()
+        #import ipdb; ipdb.set_trace()
         aux = re.search(patterns[0], line, re.IGNORECASE)
         return aux
     else:
         return None
-
 
 
 def isImportantLine(line):
@@ -306,6 +344,7 @@ def isImportantLine(line):
         return line
     else:
         return line
+
 
 def isImportantLineII(diccNums, line):
     global textREPLACE
@@ -326,7 +365,8 @@ def isImportantLineII(diccNums, line):
 
     return line
 
-def zweiteAcomodaTexto(text, ruta):
+
+def zweiteAcomodaTexto(text, ruta=settings.DICCIONARIOS_PATH):
     #  acomodamos las lineas en parrafos
     #  identificamos partes de la sentencia
     #  y buscamos primero, segundo...
@@ -360,23 +400,18 @@ def zweiteAcomodaTexto(text, ruta):
 
 
 
-
-def acomodaTexto (text, ruta):
+def acomodaTexto (text, ruta=settings.DICCIONARIOS_PATH):
     # se recibe un .txt con documento.readlines()
-
     # primero eliminamos numeros de pagina y ecabezados
     text = ersteAcomodaTexto(text)
     # despues acomodamos las lineas en parrafos
     #	  identificamos partes de la sentencia
     #	  y buscamos primero, segundo...
-
-
     text = zweiteAcomodaTexto(text, ruta)
-
-
     return text
 
-def specialStrip(aux) :
+
+def specialStrip(aux):
     cad = ""
     for letra in aux:
         if re.match("\w", letra):
@@ -384,13 +419,29 @@ def specialStrip(aux) :
     return cad
 
 
-#########################################################################################
-#########################################################################################
+###############################################
+###############################################
 """ DICCIONARIO de numeros """
-#########################################################################################
-#########################################################################################
+###############################################
+###############################################
 
 
+def importarNumeros(ruta=settings.DICCIONARIOS_PATH):
+    #ruta += "/nums_para_editar_txt.dat"
+    try:
+        numeros = {}
+        archivo = open(ruta, "U")
+        for num in archivo:
+            num = num.replace('\n', '')
+            num = num.split("#@%")
+            diccionariza(numeros, num[1], num[0])
+        archivo.close()
+        return numeros
+    except Exception as e:
+        print("Error importarNumeros: {0}".format(e))
+
+
+"""
 def importarNumeros (ruta):
     ruta   += "/nums_para_editar_txt.dat"
     numeros = {}
@@ -401,6 +452,7 @@ def importarNumeros (ruta):
         diccionariza(numeros, num[1], num[0])
     archivo.close()
     return numeros
+"""
 
 
 def diccionariza (diccionario, identificador, lista):
@@ -427,6 +479,7 @@ def diccionariza (diccionario, identificador, lista):
         #posciónes que se ha avanzado
         #tamaño total de la cadena
         #recorrido en el diccionario, cadena que hasta ese momento se ha encontrado
+
 
 def buscaNumero(texto, i, tam,  diccionario):
     i = i+1
@@ -455,11 +508,11 @@ def buscaNumero(texto, i, tam,  diccionario):
 
 
 
-####################################################################################################
-####################################################################################################
+####################################################
+####################################################
 """ FUNCIONES PARA LIMPIAR ARCHIVO """
-####################################################################################################
-####################################################################################################
+####################################################
+####################################################
 
 # Sustituye todas las ocurrencias del <patron> por <sustit> en <line>
 def cambiarCadena(line, patron, sustit=''):  #<line>, <patrón>, <lo que sustituye al patrón (por omisión '')>
@@ -469,6 +522,7 @@ def cambiarCadena(line, patron, sustit=''):  #<line>, <patrón>, <lo que sustitu
         line = line.replace(t, sustit, 1)
 
     return line
+
 
 def juntarAsteris(line):
     trash = re.search(r"\*\s+?\*", line)
@@ -528,31 +582,11 @@ def limpiarTexto(texto):
     return cadena
 
 
-
-
-
-
-####################################################################################################
-####################################################################################################
+####################################################
+####################################################
 """ FUNCIÓN PARA ELMINAR SIMBOLOS """
-####################################################################################################
-####################################################################################################
-
-chars1 = [':', ',', ';', '.', '!', '?', '<', '>', '+', '%', '$', ' ', 
-      '/', '=', '@', '*', '(', ')', '[', ']', '{', '}', '-']
-
-chars2 = [ '\xc3\xb1', '\xc3\x91', '\xc3\xa1', '\xc3\xa9', '\xc3\xad', #acentos
-           '\xc3\xb3', '\xc3\xba', '\xc3\x81', '\xc3\x89', '\xc3\x8d',
-           '\xc3\x93', '\xc3\x9a', '\xc3\xbc', '\xc3\x9c']
-
-chars3 = ['\xe2\x80\x9c', '\xe2\x80\x9d', '\xe2\x80\x99'] #comillas
-
-
-charsTOreplace = {'\xc2\xa1': " -! ", '\xc2\xbf': " -? ", '\xc2\x91': ' " '} 
-
-simbolox = ['\xc2', '\xc3', '\xe2'] #inicio de simbolos
-
-
+####################################################
+####################################################
 
 #permitimos -> :,;.!?<>+%$/=@*()[]{}- <-
 def eliminasimbolos (linea):
@@ -664,6 +698,7 @@ def eliminasimbolos (linea):
 #######################################
 #### FUNCIÓN PARA RESTAURAR NÚMEROS ###
 #######################################
+
 def restaurarNumeros(texto):
     global dicc_textREPLACE
     for k, textOri in dicc_textREPLACE.items():
@@ -678,3 +713,136 @@ def restaurarNumeros(texto):
             texto   = texto.replace(textToRestore, textOri)
 
     return texto
+
+
+################### FUNCIONES PARA INTERPRETAR LAS MARCAS
+
+
+def dar_formato_a_texto(archivo, new_path=None):
+    """
+    Dar formato al texto a modo de separar resultandos, etc.
+    :param archivo:
+    :return:
+    """
+    arch = open(archivo, "r")
+    text = arch.readlines()
+    arch.close()
+
+    texto = acomodaTexto(text)
+    texto = marcarConsiderandos(texto)
+    texto = limpiarTexto(texto)
+    texto = restaurarNumeros(texto)
+
+    if new_path:
+        arch = open (new_path, "w")
+    else:
+        arch = open('{0}_formated.txt'.format(archivo), "w")
+        arch.write(texto)
+        arch.close()
+    return texto
+
+
+
+def manejar_considerando(line):
+    inicio_considerando = False
+    termino_considerando = False
+
+
+
+def guardar_parrafo(parrafos, ):
+    """
+
+    :return:
+    """
+    pass
+
+
+def convertir_texto_a_bd(texto, modelo=None):
+    """
+    Funcion que lee el texto 'formateado'
+    e interpretara las marcas (ej: %=%CONSIDERANDO%=%)
+    para separar por parrafos y por secciones
+    :param texto:
+    :return:
+    """
+    #import ipdb; ipdb.set_trace()
+
+    partes = {0:'inicio',
+              1:'considerandos',
+              2:'resuelve',
+              }
+
+    print("imprimir lineas ya con formato")
+    all_lines = list()
+    all_words = list()
+    dict_words = dict()
+    numero_inicial=0
+    numero_final=0
+
+    posicion_actual = 0
+    considerandos_enumerados = 0
+    parrafos = list()
+    parrafo_actual = {}
+
+    contador_palabras=0
+    for line in texto.split('\n'):
+        #Abrir el nuevo archivo generado
+        #Limpiando los caracteres raros y lineas vacias
+        #line = unicode(line, errors='replace')
+        #prov_line = line.replace('\xef\x81\xa1', '').replace('\n','').replace('\xef\x82\xb7','')#.decode('utf8')
+        #prov_line = line.replace('\n','')
+
+        if '%=%' in line:
+            #if '%=%CONSIDERANDO%=%' in line:
+            print("EMPIEZAN CONSIDERANDOS")
+            #estamos en considerandos
+            posicion_actual=1
+            considerandos_enumerados = 0
+
+            #Guardamos en parrafos el parrafo actual
+            #parrafos.append(parrafo_actual)
+            #if modelo:
+
+            #import ipdb; ipdb.set_trace()
+            #suma = sum(map (lambda x: len(x.strip().split(' ')) if '\n'!=x else 0, parrafo_actual))
+
+            #numero_final+=suma
+            print(numero_inicial, contador_palabras)
+
+            #Generando parrafo
+            modelo.crear_parrafo(numero_inicial=numero_inicial,
+                                 numero_final=contador_palabras,
+                                 parrafo_actual=parrafo_actual)
+
+            numero_inicial = contador_palabras+1
+            parrafos.append(parrafo_actual)
+            #parrafo_actual = ""
+            parrafo_actual = {}
+
+        else:
+            #import ipdb; ipdb.set_trace()
+            #print("linea distinta a separador")
+            #parrafo_actual += line
+            for palabra in line.strip().split():
+                if '\n' == palabra:
+                    continue
+                parrafo_actual[contador_palabras]=palabra
+                contador_palabras+=1
+
+    # PARAFFO FINAL
+    if parrafo_actual:
+        #suma = sum(map (lambda x: len(x.strip().split(' ')) if '\n'!=x else 0, parrafo_actual))
+        print(numero_inicial, contador_palabras)
+
+        #Generando parrafo
+        modelo.crear_parrafo(numero_inicial=numero_inicial,
+                             numero_final=contador_palabras,
+                             parrafo_actual=parrafo_actual)
+        numero_inicial = numero_final+1
+        parrafos.append(parrafo_actual)
+        parrafo_actual = ""
+
+    return parrafos
+
+
+

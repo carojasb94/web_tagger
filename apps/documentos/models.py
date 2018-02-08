@@ -1,9 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import os
 import json
+import logging
+import subprocess
 from django.db import models
 from django.conf import settings
 
+from utils.funciones import (acomodaTexto, marcarConsiderandos,
+                             limpiarTexto, restaurarNumeros,
+                             convertir_texto_a_bd, dar_formato_a_texto)
+
+from django.contrib.postgres import fields
+
+logger = logging.getLogger('modelos')
 
 def get_documento_path(instance, filename):
     """
@@ -33,7 +43,7 @@ class Documento(models.Model):
     organo_jurisdiccional = models.CharField(max_length=60, blank=True,
                                 null=True, default="")
 
-    texto_html = models.CharField(max_length=300000, blank=True,
+    texto_html = models.TextField(max_length=300000, blank=True,
                                   null=True, default="")
 
     archivo = models.FileField(upload_to=get_documento_path)
@@ -59,6 +69,63 @@ class Documento(models.Model):
     def get_path(self):
         return self.archivo.url
 
+    def crear_parrafo(self, numero_inicial, numero_final, parrafo_actual):
+        Parrafo.objects.create(documento=self, numero_inicial=numero_inicial,
+                               numero_final=numero_final,texto=parrafo_actual,
+                               tipo='inicio')
+        try:
+            DummyParrafo.objects.create(
+                texto={'1':'hola',
+                       '2':'nanoz'}
+            )
+        except Exception as e:
+            print("fallo tercero dummy ")
+            print(e)
+
+
+
+
+    def get_siguiente_parrafo(self):
+        return self.parrafo.exclude(ha_sido_evaluado=True).first()
+
+    def get_dummy_parrafo(self):
+        return DummyParrafo.objects.first()
+
+
+class Parrafo(models.Model):
+    """
+    Clase para guardar los parrafos encontrados en el Documento
+    """
+    documento = models.ForeignKey(Documento, related_name='parrafo')
+
+    numero_inicial=models.IntegerField(blank=True, null=True,
+        help_text="Indice de inicio delas palabras")
+
+    numero_final = models.IntegerField(blank=True, null=True,
+        help_text="Indice de inicio delas palabras")
+
+    texto = fields.JSONField()
+
+    ha_sido_evaluado = models.BooleanField(
+        help_text='Marcar cuando un parrafo ya ha sido evaluado',
+        default=False)
+
+    tipo = models.CharField(
+        help_text="Saber si es considerando, resultando, resuelve, etc.",
+        max_length=40, blank=True, null=True)
+
+    def __str__(self):
+        return "{0}: {1} {2}".format(self.id, self.numero_inicial, self.numero_final)
+
+
+
+
+class DummyParrafo(models.Model):
+    """"""
+
+    texto = fields.JSONField()
+
+
 
 class Anotacion(models.Model):
     """  """
@@ -81,11 +148,15 @@ class Anotacion(models.Model):
     def get_url_file(self):
         return self.documento.get_path()
 
+    #def get_texto(self):
+    #    return json.loads(self.documento.texto_html)
+
     def get_texto(self):
-        return json.loads(self.documento.texto_html)
+        return self.documento.texto_html
 
     def set_texto(self, texto):
-        self.documento.texto_html = json.dumps(texto)
+        self.documento.texto_html = texto
+        #self.documento.texto_html = json.dumps(texto)
 
     def save_documento(self):
         self.documento.save()
@@ -104,7 +175,7 @@ class Clasificacion(models.Model):
 class TAG(models.Model):
     """  """
 
-    texto = models.CharField(max_length=60, blank=True,
+    texto = models.CharField(max_length=1000, blank=True,
                              null=True, default="")
 
     clasificacion = models.ForeignKey(Clasificacion)
@@ -117,11 +188,17 @@ class TAG(models.Model):
 
 
 
-class Oracion(object):
+class Oracion(models.Model):
     """  """
-    tag = models.ForeignKey(TAG, related_name='tag')
+    tags = models.ForeignKey(TAG, related_name='tags', null=True, blank=True)
 
-    texto = models.CharField(max_length=500, blank=True,
+    anotacion = models.ForeignKey(Anotacion, related_name='oraciones')
+    parrafo = models.ForeignKey(Parrafo, related_name='oraciones')
+
+    tipo_anotacion = models.CharField(max_length=100, blank=True,
+                                      null=True, default="")
+
+    texto = models.CharField(max_length=2000, blank=True,
                              null=True, default="")
 
     evaluado_por = models.ForeignKey(settings.AUTH_USER_MODEL,
@@ -131,7 +208,10 @@ class Oracion(object):
     is_correcta = models.BooleanField(default=True)
 
     def __str__(self):
-        return "Oracion {0}".format(self.texto)
+        return "Oracion {0}".format(self.id)
+
+    def __unicode__(self):
+        return u"Oracion {0}".format(self.id)
 
 
 class EstadoEtiquetado(object):
@@ -142,3 +222,50 @@ class EstadoEtiquetado(object):
 
 
 
+###################### DEFINIENDO SIGNALS
+from django.db.models.signals import (post_save, pre_save)
+from django.dispatch import receiver
+
+
+@receiver(post_save, sender=Documento)
+def crear_ticket_cepra(sender, **kwargs):
+    #import ipdb; ipdb.set_trace()
+    if kwargs['created']:
+        #EJECUTAMOS LA LECTURA Y GUARDADO DE LA INFORMACION DEL ARCHIVO PDF
+        logger.debug("Documento guardado, procedemos a guardar informacion")
+        #import ipdb; ipdb.set_trace()
+
+        filepath =  kwargs['instance'].get_path()
+        _path_ = filepath.split('/')
+        print(os.getcwd())
+        root_path = os.getcwd() + "/".join(_path_[:len(_path_)-1])
+
+        filepath_prov = os.path.join(root_path, _path_[-1].
+                                     replace('.PDF','.txt').replace('.pdf','.txt'))
+        print("PATHS: ")
+        print(filepath)
+        print(_path_)
+        print(filepath_prov)
+        command = ["pdftotext", "-layout", "-raw", "-q",
+                   os.getcwd()+filepath, filepath_prov
+                   ]
+
+        print(" ".join(command))
+        proceso = subprocess.Popen(command, stdout=subprocess.PIPE)
+        exit_code = proceso.wait()
+        print(exit_code)
+
+        ## GREGANDO SCRIPT QUE DA FORMATO AL ARCHIVO EXTRAIDO CON PDFTOTEXT
+        texto = dar_formato_a_texto(filepath_prov, new_path=None)
+        print("termino de dar formato...")
+
+        # Interpretar el texto formateado
+        all_words = convertir_texto_a_bd(texto, kwargs['instance'])
+
+        #anotacion.set_texto(json.dumps(['ESTO','es','una','lista','de','palabras','alv',':v']))
+        #Guardar la conversion final del texto en la bd
+        #kwargs['instance'].texto_html = json.dumps(all_words)
+        #kwargs['instance'].save()
+
+    else:
+        pass
