@@ -78,20 +78,34 @@
                               <option value="texto_jurisprudencia">Texto de jurisprudencia</option>
                           </select>
                       </div>
-                      <hr>
-                      <div class="small text-muted" id="texto_etiquetado">YTD Expenses</div>
+                      <div class="small text-muted texto_seleccionado" id="referencia_articulo" style="display: none;">
+                          <br/>
+                        <input type="text" id="tag_ley" placeholder="Ley">
+                        <input type="text" id="tag_numero_articulo" placeholder="Numero de Articulo">
+                        <input type="text" id="tag_apartado" placeholder="Apartado">
+                        <input type="text" id="tag_fraccion" placeholder=" Fracción">
+                        <input type="text" id="tag_inciso" placeholder=" inciso">
+                        <input type="text" id="tag_parrafo" placeholder="Parrafo">
+                        <button class="btn  btn-xs btn-primary pull-right" name="referencia_articulo" id="referencia_articulo_enviar"> Guardar </button>
+                      </div>
 
                       <hr>
+                     <div class="small text-muted" id="texto_etiquetado">_</div>
+
                       <div class="mb-0 text-warning">
+                          <div class="panel panel-default texto_seleccionado"  id="palabra"  style="background-color:#7FB1DC; display: none;">
+                              <button class="btn  btn-xs btn-primary pull-right" name="palabra" id="palabra_enviar"> Guardar </button>
+                          </div>
+
                           <div class="panel panel-default texto_seleccionado"  id="referencia_jurisprudencia"  style="background-color:#7FB1DC; display: none;">
-                              <button class="btn  btn-xs btn-primary pull-right" name="enviar" id="referencia_jurisprudencia_enviar"> Guardar </button>
+                              <button class="btn  btn-xs btn-primary pull-right" name="referencia_jurisprudencia" id="referencia_jurisprudencia_enviar"> Guardar </button>
                           </div>
                           <div class="small texto_seleccionado" id="texto_articulo"  style="background-color:#7FB1DC; display: none;">
-                              <button class="btn  btn-xs btn-primary guardar-anotacion" name="enviar" id="texto_articulo_enviar"> Guardar </button>
+                              <button class="btn  btn-xs btn-primary guardar-anotacion" name="texto_articulo" id="texto_articulo_enviar"> Guardar </button>
                           </div>
 
                           <div class="small texto_seleccionado" id="texto_jurisprudencia"  style="background-color:#7FB1DC; display: none;">
-                              <button class="btn  btn-xs btn-primary pull-right" name="enviar" id="texto_jurisprudencia_enviar"> Guardar </button>
+                              <button class="btn  btn-xs btn-primary pull-right" name="texto_jurisprudencia" id="texto_jurisprudencia_enviar"> Guardar </button>
                           </div>
 
                       </div>
@@ -345,6 +359,7 @@ $('#mostrar_pdf').on('click', function(){
 
 
 var total_palabras = {{ palabras|jsonify }};
+var tag_leyes = {{ tags_leyes }}
 var id_anotacion = {{ anotacion.id }};
 var id_parrafo = {{ parrafo_id }};
 
@@ -361,7 +376,13 @@ var evaluado_por={{ request.user.id }};
 console.log(csrftoken, evaluado_por);
 
 
-var global_information = {}
+var global_information = {};
+
+/*  INICIALIZANDO AUTOCOMPLETER DE LEYES  */
+var lista_leyes = {{ lista_leyes }}
+$(function () {
+    $('#tag_ley').autocompleter({ source: '/lista-leyes', customLabel:'texto', customValue:'texto', cache:true, cacheExpires:0,  });
+});
 
 /// GENERANDO LA INFORMACION
 $.each(total_palabras, function (key, value) {
@@ -424,6 +445,7 @@ $('#seleccionar_modo').on('change', function(){
     div_activo = $(div_seleccion);
     console.log(seleccion);
     console.log(seleccion.val());
+
     $('.texto_seleccionado').hide();
     $('.error_seleccion').html("");
     div_activo.show();
@@ -512,6 +534,27 @@ document.addEventListener('copy', function(e) {
 
 
 ////////////////////////// FUNCION PARA GUARDAR/PEDIR INFORMACION
+$('#palabra_enviar').on('click', function(){
+    if (seleccion_activa){
+        //preparar_anotacion('referencia_jurisprudencia');
+        console.log("palabra enviar valido")
+    }
+    else{
+        console.log("NO HAY UNA SELECCION ACTIVA o esta modificada ")
+    }
+});
+
+
+$('#referencia_articulo_enviar').on('click', function(){
+    if (seleccion_activa){
+        //preparar_anotacion('referencia_articulo');
+        console.log("referencia_articulo valido")
+    }
+    else{
+        console.log("NO HAY UNA SELECCION ACTIVA o esta modificada ")
+    }
+});
+
 
 
 $('#referencia_jurisprudencia_enviar').on('click', function(){

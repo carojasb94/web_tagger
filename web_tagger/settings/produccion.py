@@ -11,7 +11,7 @@ DATABASES = {
         'NAME': 'taggersys',
         'USER': 'crojas',
         'PASSWORD': '123qweasd',
-        'HOST': '1234qwerasdfzxcv=)',
+        'HOST': 'localhost',
         'PORT': '5432',
     }
 }
