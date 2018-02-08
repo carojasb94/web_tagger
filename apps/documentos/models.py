@@ -184,8 +184,10 @@ class TAG(models.Model):
 
 
     def __str__(self):
-        return "{0}".format(self.texto)
+        return "{0}".format(self.texto).encode('utf-8')
 
+    #def __unicode__(self):
+    #    return "{0}".format(self.texto).decode('utf-8')
 
 
 class Oracion(models.Model):

@@ -3,7 +3,7 @@
 
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from .models import (Anotacion, Oracion, Parrafo)
+from .models import (Anotacion, Oracion, Parrafo, TAG)
 
 
 class OracionSerializer(serializers.ModelSerializer):
@@ -20,3 +20,11 @@ class ParrafoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Parrafo
         fields = ('id', 'ha_sido_evaluado')
+
+
+class TAGLeyesSerializer(serializers.ModelSerializer):
+    """ """
+
+    class Meta:
+        model = TAG
+        fields = ('id', 'texto')

@@ -5,12 +5,12 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
-from .models import (Anotacion, Documento, Parrafo, Oracion)
+from .models import (Anotacion, Documento, Parrafo, Oracion, TAG)
 from .forms import DocumentoForm
 import json
 from django.utils.encoding import smart_unicode
 from rest_framework import viewsets
-from .serializers import (OracionSerializer, ParrafoSerializer)
+from .serializers import (OracionSerializer, ParrafoSerializer, TAGLeyesSerializer)
 
 def AnotacionView(request, id):
     print("AnotacionView")
@@ -44,12 +44,19 @@ def AnotacionView(request, id):
     #import ipdb; ipdb.set_trace()
     parrafo = documento.get_siguiente_parrafo()
     print("parrafo: {0} ".format(parrafo))
+    tags_leyes={}
+    try:
+        #INTENTANDO SACAR LAS TAGS
+        tags_leyes = TAG.objects.filter(subtag=TAG.objects.get(texto="leyes")).count()
+    except Exception as e:
+        print("error al intentar obtener tags de leyes: {0}".format(e))
 
     return render(request, template_name=template_name,
                   context={'anotacion':anotacion,
                            #'palabras': json.loads(parrafo.texto),
                            'palabras': parrafo.texto,
                            'parrafo_id':parrafo.id,
+                           'tags_leyes':tags_leyes,
                            })
 
 
@@ -170,3 +177,19 @@ class ParrafoViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         print("update de ParrafoViewSet")
         return super(ParrafoViewSet, self).update(request, *args, **kwargs)
+
+
+
+class TAGSLeyesViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    #queryset = TAG.objects.all()
+    queryset = TAG.objects.filter(subtag=TAG.objects.get(texto='leyes'))
+    serializer_class = TAGLeyesSerializer
+
+    #def create(self, request, *args, **kwargs):
+    #    print("METODO CREATE AnotacionViewSet")
+    #    import ipdb; ipdb.set_trace()
+    #    request = super(ParrafoViewSet, self).create(request, *args, **kwargs)
+
