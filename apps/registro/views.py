@@ -19,6 +19,7 @@ def home(request):
     return redirect(reverse('registro_app:login'))
     #return render(request, template_name='home.html', context={})
 
+
 def do_login(request):
     """
     :param request:

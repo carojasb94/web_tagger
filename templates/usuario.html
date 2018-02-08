@@ -17,6 +17,7 @@
   <link href="{% static 'vendor/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
   <!-- Custom styles for this template-->
   <link href="{% static 'css/sb-admin.css' %}" rel="stylesheet">
+  <link href="{% static 'css/botones.css' %}" rel="stylesheet">
   {% block css %}
   {% endblock %}
 </head>
@@ -78,6 +79,7 @@
           </a>
           <ul class="sidenav-second-level collapse" id="collapseRevisiones">
             {% comment %} SECCION DE TAREAS DE REVISION {% endcomment %}
+            {% comment %}
             {% block revisiones %}
                 {% if revisiones_pendientes %}
                     {% for revision in revisiones_pendientes %}
@@ -93,6 +95,7 @@
                   </li>
               {% endif %}
             {% endblock %}
+            {% endcomment %}
             {% comment %}
             <li>
               <a href="#">Second Level Item</a>
@@ -223,6 +226,7 @@
     </div>
 
   </nav>
+
   <div class="content-wrapper">
     <div class="container-fluid">
       <!-- Breadcrumbs-->
@@ -238,9 +242,10 @@
           <h1>Blank</h1>
           <p>This is an example of a blank page that you can use as a starting point for creating new ones.</p>
         </div>
-        {% block content %}
+        {% block content_2 %}
         {% endblock %}
       </div>
+
     {% endcomment %}
         {% block content %}
         {% endblock %}
@@ -276,6 +281,8 @@
         </div>
       </div>
     </div>
+  {% block modals %}
+  {% endblock %}
     <!-- Bootstrap core JavaScript-->
     <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
     <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
@@ -283,6 +290,7 @@
     <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
     <!-- Custom scripts for all pages-->
     <script src="{% static 'js/sb-admin.min.js' %}"></script>
+    <script src="{% static 'js/cookie/jquery.cookie.js' %}"></script>
 
     {% block js_custom %}
     {% endblock %}
