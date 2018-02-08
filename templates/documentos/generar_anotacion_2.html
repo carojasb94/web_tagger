@@ -644,6 +644,7 @@ function terminar_parrafo(){
         success: function(result){
             console.log("EXITO AL ACTUALIZAR PARRAFO");
             console.log(result);
+            location.reload();
         },
         error:function(error){
             console.log("ERROR AL ACTUALIZAR PARRAFO ");
@@ -655,6 +656,7 @@ function terminar_parrafo(){
 $('#siguiente_parrafo').on('click', function(){
     console.log("SIGUIENTE PARRAFO");
     terminar_parrafo();
+
 });
 
 
