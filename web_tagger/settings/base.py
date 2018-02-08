@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Django settings for web_tagger project.
 
@@ -30,6 +31,7 @@ DJANGO_APPS = [ 'django.contrib.admin',
 THIRD_PARTY_APPS = [
     'widget_tweaks',
     'django_extensions',
+    'rest_framework',
 ]
 
 LOCAL_APPS = [
@@ -153,10 +155,25 @@ LOGGING = {
             'handlers': ['console', 'file'],
             'propagate': True,
         },
+        'modelos': {
+            'handlers': ['console', 'file'],
+            'propagate': True,
+        },
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': False,
         },
     }
+}
+
+
+DICCIONARIOS_PATH = os.path.join(BASE_DIR, 'docs/numeros/nums_para_editar_txt.dat')
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        #'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
 }
