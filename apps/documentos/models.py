@@ -6,6 +6,8 @@ import logging
 import subprocess
 from django.db import models
 from django.conf import settings
+from django.db.models.signals import (post_save, pre_save)
+from django.dispatch import receiver
 
 from utils.funciones import (acomodaTexto, marcarConsiderandos,
                              limpiarTexto, restaurarNumeros,
@@ -14,6 +16,7 @@ from utils.funciones import (acomodaTexto, marcarConsiderandos,
 from django.contrib.postgres import fields
 
 logger = logging.getLogger('modelos')
+
 
 def get_documento_path(instance, filename):
     """
@@ -36,30 +39,20 @@ def get_documento_path(instance, filename):
 class Documento(models.Model):
     """  """
 
-    tipo_asunto = models.CharField(max_length=60, blank=True,
-                                null=True, default="")
-    materia = models.CharField(max_length=60, blank=True,
-                                null=True, default="")
-    organo_jurisdiccional = models.CharField(max_length=60, blank=True,
-                                null=True, default="")
-
+    tipo_asunto = models.CharField(max_length=60, blank=True, default="")
+    materia = models.CharField(max_length=60, blank=True, default="")
+    organo_jurisdiccional = models.CharField(max_length=60, blank=True, default="")
     texto_html = models.TextField(max_length=300000, blank=True,
                                   null=True, default="")
-
     archivo = models.FileField(upload_to=get_documento_path)
+    juez = models.CharField(max_length=80, blank=True, default="")
+    secretario = models.CharField(max_length=80, blank=True, default="")
+    preambulo = models.CharField(max_length=80, blank=True, default="")
+    resultandos = models.CharField(max_length=80, blank=True, default="")
+    considerandos = models.CharField(max_length=80, blank=True, default="")
+    puntos_resolutivos = models.CharField(max_length=80, blank=True, default="")
+    nombre_publico = models.CharField(max_length=60, blank=True, default="")
 
-    juez = models.CharField(max_length=80, blank=True,
-                            null=True, default="")
-    secretario = models.CharField(max_length=80, blank=True,
-                                  null=True, default="")
-    preambulo = models.CharField(max_length=80, blank=True,
-                                 null=True, default="")
-    resultandos = models.CharField(max_length=80, blank=True,
-                                   null=True, default="")
-    considerandos = models.CharField(max_length=80, blank=True,
-                                     null=True, default="")
-    puntos_resolutivos = models.CharField(max_length=80, blank=True,
-                                          null=True, default="")
     #url = models.SlugField(max_length=80, blank=True,
     #                       null=True)
 
@@ -81,9 +74,6 @@ class Documento(models.Model):
         except Exception as e:
             print("fallo tercero dummy ")
             print(e)
-
-
-
 
     def get_siguiente_parrafo(self):
         return self.parrafo.exclude(ha_sido_evaluado=True).first()
@@ -114,10 +104,19 @@ class Parrafo(models.Model):
         help_text="Saber si es considerando, resultando, resuelve, etc.",
         max_length=40, blank=True, null=True)
 
+    class Meta:
+        ordering = ['id']
+
+
     def __str__(self):
         return "{0}: {1} {2}".format(self.id, self.numero_inicial, self.numero_final)
 
+    def get_next_parrafo(self):
+        return Parrafo.objects.filter(id__gt=self.id, documento=self.documento).first()
 
+
+    def get_prev_parrafo(self):
+        return Parrafo.objects.filter(id__lt=self.id, documento=self.documento).last()
 
 
 class DummyParrafo(models.Model):
@@ -209,6 +208,7 @@ class Oracion(models.Model):
 
     is_correcta = models.BooleanField(default=True)
 
+
     def __str__(self):
         return "Oracion {0}".format(self.id)
 
@@ -221,13 +221,28 @@ class EstadoEtiquetado(object):
     pass
 
 
+"""
+class EvaluacionParrafo(models.Model):
+
+    editado_por = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                    on_delete=models.CASCADE,
+                                    related_name='evaluacion')
+    oracion = models.ForeignKey(Oracion, related_name='evaluacion')
+    fecha_creacion = models.DateTimeField(auto_now_add=True, null=True,
+                                          verbose_name='Fecha de creacion/actualizacion de la oracion')
+"""
+
+class ArgumentacionParrafo():
+    editado_por = models.OneToOneField(settings.AUTH_USER_MODEL,
+                                       on_delete=models.CASCADE,
+                                       related_name='argumento')
+    oracion = models.ForeignKey(Oracion, related_name='evaluacion')
+    calificacion = models.PositiveSmallIntegerField()
+
 
 
 
 ###################### DEFINIENDO SIGNALS
-from django.db.models.signals import (post_save, pre_save)
-from django.dispatch import receiver
-
 
 @receiver(post_save, sender=Documento)
 def crear_ticket_cepra(sender, **kwargs):
@@ -271,3 +286,20 @@ def crear_ticket_cepra(sender, **kwargs):
 
     else:
         pass
+
+
+class TAGPersonal(models.Model):
+    """
+    Clase para guardar los alias de los tags que el usuario ocupe
+    recurrentemente
+
+    """
+    tag = models.ForeignKey(TAG)
+    alias = models.CharField(max_length=50, blank=True, null=True)
+    #alias = models.CharField(max_length=50, blank=True, null=True)
+
+
+    pass
+
+
+

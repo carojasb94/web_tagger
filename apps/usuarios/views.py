@@ -9,11 +9,12 @@ def PerfilView(request):
     print("Home del Usuario anotador")
     anotaciones_pendientes = request.user.anotador.filter(is_done=False)
     revisiones_pendientes = request.user.revisor.filter(is_done=False)
-    return render(request, template_name='usuarios/perfil.html',
+    return render(request, template_name='usuarios/perfil.html',)
 
-                  context={'anotaciones_pendientes': anotaciones_pendientes,
-                           'revisiones_pendientes':revisiones_pendientes,}
-                  )
+
+    #return render(request, template_name='usuarios/perfil.html',
+    #              context={'anotaciones_pendientes': anotaciones_pendientes,
+    #                       'revisiones_pendientes':revisiones_pendientes,})
 
 
 @login_required

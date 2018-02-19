@@ -14,10 +14,24 @@
     <div class="col-12">
       <h1>Modos de selección</h1>
       <p>A continuación se muestra las acciones que se pueden tomar para etiquetar los textos, las opciones, etc..</p>
+        {% if get_prev_parrafo %}
+                <a class="btn btn-primary btn-xs btn-warning"
+                   href="{% url 'documentos_app:anotacion-especifica' anotacion.id get_prev_parrafo.id %}">
+                    <i class="fa fa-arrow-left"></i>
+                </a>
+        {% endif %}
         <button class="btn  btn-xs btn-secondary" name="modo_palabras" id="modo_palabras">Seleccion por Palabra.</button>
         <button class="btn btn-primary btn-xs" name="modo_texto" id="modo_texto">Seleccionar porción de texto.</button>
         <button class="btn btn-primary btn-xs btn-success" name="mostrar_pdf" id="mostrar_pdf">Mostrar archivo original.</button>
-        <button class="btn btn-primary btn-xs btn-warning" name="mostrar_pdf" id="mostrar_pdf" data-toggle="modal" data-target="#parrafo-modal">Siguiente parrafo.</button>
+        {% if get_next_parrafo %}
+            <a class="btn btn-primary btn-xs btn-warning"
+               href="{% url 'documentos_app:anotacion-especifica' anotacion.id get_next_parrafo.id %}">
+                <i class="fa fa-arrow-right"></i>
+            </a>
+        {% endif %}
+        <button class="btn btn-primary btn-xs btn-danger pull-right" data-toggle="modal" data-target="#parrafo-modal">
+            Terminar documento
+        </button>
 
     </div>
     {% block content_2 %}
@@ -141,6 +155,7 @@
               </div>
               <!-- Anotaciones-->
     {% comment %}
+{% endcomment %}
               <div class="card mb-3">
                 <div class="card-header">
                   <i class="fa fa-bell-o"></i> Anotaciones realizadas</div>
@@ -190,7 +205,6 @@
                 </div>
                 <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
               </div>
-{% endcomment %}
             </div>
         </div>
 
@@ -306,17 +320,17 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Continuar con el etiquetado del texto</h5>
+        <h5 class="modal-title" id="exampleModalLabel">Terminar de etiquetar texto</h5>
         <button class="close" type="button" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">×</span>
         </button>
       </div>
       <div class="modal-body">
-          Al darle continuar se marcara como 'evaluado' por completo esta sección del documento.
+          Al darle click a continuar, el documento sera enviado para revisión y ya no podras corregirlo.
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
-        <button class="btn btn-primary" name="siguiente_parrafo" id="siguiente_parrafo" data-dismiss="modal">Aceptar</button>
+        <button class="btn btn-primary" name="terminar-documento" id="terminar-documento" data-dismiss="modal">Aceptar</button>
       </div>
     </div>
   </div>
@@ -366,7 +380,7 @@ var id_parrafo = {{ parrafo_id }};
 // Genera un boton por palabra, para poder etiquetar palabras
 
 // para saber que esta etiquetando, si palabras o texto
-var seleccion_default='texto';
+var seleccion_default='palabras';
 var seleccion_activa=seleccion_default;
 // para saber que esta etiquetando (palabra, texto articulo, etc...)
 var div_activo = "";
@@ -386,7 +400,7 @@ $(function () {
 
 /// GENERANDO LA INFORMACION
 $.each(total_palabras, function (key, value) {
-    $('#seleccion_palabras').append('<button class="btn btn-xs palabra" id='+key+'>' +value+'</button> ');
+    $('#seleccion_palabras').append('<button class="btn btn-xs palabra color1 ' +key+ '" id='+key+'>' +value+'</button> ');
     //$('#seleccion_palabras').append('<button class="btn btn-xs palabra" id='+key+'_'+value+'>' +value+'</button> ');
 
 });
@@ -450,48 +464,54 @@ $('#seleccionar_modo').on('change', function(){
     $('.error_seleccion').html("");
     div_activo.show();
     // reseteando diccionario de palabras
-    palabras_seleccionadas={};
+    //palabras_seleccionadas={};
     // reseteando html de texto plano
-    $('#texto_etiquetado').html("");
+    //$('#texto_etiquetado').html("");
 
 });
 
 
 //AGREGANDO FUNCIONALIDAD A LOS 'BOTONES' de las palabras
+/*
 $('.palabra').on('click', function(palabra){
     console.log("DIO CLICK A UNA PALABRA");
 });
+*/
 
 //AGREGANDO FUNCIONALIDAD A LOS 'BOTONES' de las palabras
 $('#seleccion_palabras').on('click', '.palabra', function(a,b,c){
-    //console.log("DIO CLICK A UNA PALABRA (delegacion de funcion)");
+    console.log("DIO CLICK A UNA PALABRA (delegacion de funcion)");
+    console.log(a, b, c );
     console.log(this.id, $(this).html());
-    console.log("div activo: "+div_activo);
-    if (div_activo){
-        $('.error_seleccion').toggle();
+        //$('.error_seleccion').toggle();
 
-            //console.log($(div_activo).appendTo('.'+seleccion_activa));
-            console.log($(div_activo).find('.'+seleccion_activa));
-
-        //EVITAR DUPLICIDAD DE ELEMENTOS en el caso del etiquetado por palabras
-        if ($(div_activo).find('.'+seleccion_activa).find("#"+this.id).length){
-            console.log("YA EXISTE ESE ELEMNTO DIV_aCTIVO")
-        }
+        //console.log($(div_activo).appendTo('.'+seleccion_activa));
+        console.log($(div_activo).find('.'+seleccion_activa));
         if (this.id in palabras_seleccionadas){
-            console.log("YA EXISTE ESE ELEMNTO")
+            console.log("YA EXISTE ESE ELEMNTO");
+            delete palabras_seleccionadas[this.id];
+            $(this).removeClass('color3');
+            sorted_words = Object.values(palabras_seleccionadas);
+            $('#texto_etiquetado').html('');
+            for (var key in sorted_words){
+                $('#texto_etiquetado').append('<span>'+sorted_words[key] +'</span> ');
+            }
+            //$('#texto_etiquetado').append('<span id='+this.id+'>'+ $(this).html()+'</span> ');
         }
         else{
-            $('#texto_etiquetado').append('<span id='+this.id+'>'+ $(this).html()+'</span> ');
             //$(div_activo).find('.'+seleccion_activa).append( '<span id='+this.id+'>'+ $(this).html()+'</span> ');
             //$(div_activo).find('.'+seleccion_activa).append( );
+            /* ORDENAR LAS PALABRAS DEL DICCIONARIO Y MOSTRAR CONFORME A PARECIERON*/
+            //$('#texto_etiquetado').append('<span id='+this.id+'>'+ $(this).html()+'</span> ');
             palabras_seleccionadas[this.id] = $(this).html();
+            $(this).addClass('color3');
+            $('#texto_etiquetado').html('');
+            sorted_words = Object.values(palabras_seleccionadas);
+            for (var key in sorted_words){
+                $('#texto_etiquetado').append('<span>'+sorted_words[key] +'</span> ');
+            }
             console.log(palabras_seleccionadas);
         }
-    }
-    else{
-        console.log("NO HAY UN DIV ACTIVO");
-        $('.error_seleccion').html("Primero debes seleccionar la acción que realizaras")
-    }
 });
 
 
@@ -535,18 +555,18 @@ document.addEventListener('copy', function(e) {
 
 ////////////////////////// FUNCION PARA GUARDAR/PEDIR INFORMACION
 $('#palabra_enviar').on('click', function(){
-    if (seleccion_activa){
+    if (seleccion_activa && div_activo){
         //preparar_anotacion('referencia_jurisprudencia');
         console.log("palabra enviar valido")
     }
     else{
-        console.log("NO HAY UNA SELECCION ACTIVA o esta modificada ")
+        console.log("NO HAY UNA SELECCION ACTIVA o esta modificada ");
     }
 });
 
 
 $('#referencia_articulo_enviar').on('click', function(){
-    if (seleccion_activa){
+    if (seleccion_activa && div_activo){
         //preparar_anotacion('referencia_articulo');
         console.log("referencia_articulo valido")
     }
@@ -607,6 +627,9 @@ function preparar_anotacion(clasificacion){
         informacion['texto']= JSON.stringify(palabras_seleccionadas);
         save_anotacion(informacion);
     }
+    else{
+
+    }
 
 }
 
@@ -622,29 +645,46 @@ function save_anotacion(informacion){
         success: function(result){
             console.log("EXITO AL GUARDAR ");
             console.log(result);
+            /* cambiar el color de las palabras que fueron seleccionadas*/
+            var seleccionadas= $('.color3');
+            console.log("palabras con clase color3");
+            console.log(seleccionadas);
+            $(seleccionadas).removeClass('color3');
+            // agregando el color 2, dde las palabras ya etiquetadas
+            $(seleccionadas).addClass('color2');
+            // Mostrando mensaje de que se guardo correctamente
+            $.toaster({ message : 'Anotación guardada', title : 'OK', priority : 'success' });
+            // LIMPIAR TEXTOS Y DICCIONARIO DE PALABRAS
+            $('#texto_etiquetado').html('');
+            palabras_seleccionadas = {};
+
         },
         error:function(error){
             console.log("ERROR AL GUARDAR ");
             //console.log(error.responseText);
             console.log(error.responseText);
+
         }
     });
 
 }
 
 /*          FUNCION PARA GUARDAR EL PARRAFO ACTUAL Y OBTENER EL SIGUIENTE */
-function terminar_parrafo(){
+function terminar_documento(){
     console.log("INFORMACION A ENVIAR: ");
 
-    $.ajax({url: '/parrafo/'+id_parrafo,
+    $.ajax({url: '/anotacion/'+id_anotacion+'/terminar',
         type:'patch', //dataType: 'json', contentType:'application/json',
-        data: {ha_sido_evaluado:true},
+        data: {is_done:true},
+
+
         //data: JSON.stringify(informacion),
         //data: informacion,
         success: function(result){
             console.log("EXITO AL ACTUALIZAR PARRAFO");
             console.log(result);
-            location.reload();
+            //location.reload();
+            window.location.replace("/perfil");
         },
         error:function(error){
             console.log("ERROR AL ACTUALIZAR PARRAFO ");
@@ -653,9 +693,9 @@ function terminar_parrafo(){
         }
     });
 }
-$('#siguiente_parrafo').on('click', function(){
+$('#terminar-documento').on('click', function(){
     console.log("SIGUIENTE PARRAFO");
-    terminar_parrafo();
+    terminar_documento();
 
 });
 

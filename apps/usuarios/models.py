@@ -9,6 +9,9 @@ from django.dispatch import receiver
 
 
 class Perfil(models.Model):
+    """
+
+    """
     #user = models.ForeignKey(related_name='user')
     user = models.OneToOneField(settings.AUTH_USER_MODEL,
                                 on_delete=models.CASCADE,
@@ -17,6 +20,9 @@ class Perfil(models.Model):
                                 null=True, default="")
     apellidos = models.CharField(max_length=60, blank=True,
                                   null=True, default="")
+
+    tags = models.ForeignKey('documentos.TAGPersonal',max_length=60,
+                             blank=True, null=True)
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)

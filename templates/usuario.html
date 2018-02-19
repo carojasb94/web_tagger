@@ -30,33 +30,46 @@
   <!-- Navigation-->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
     <a class="navbar-brand" href="index.html">WEB TAGGER</a>
-    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
+            data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
+            aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav navbar-sidenav" id="collapsenavbar">
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Anotaciones">
-          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#collapseAnotaciones" data-parent="#collapsenavbar">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#menu-anotaciones" data-parent="#collapsenavbar">
             <i class="fa fa-fw fa-sitemap"></i>
             <span class="nav-link-text">Anotaciones</span>
           </a>
-          <ul class="sidenav-second-level collapse" id="collapseAnotaciones">
+          <ul class="sidenav-second-level collapse" id="menu-anotaciones">
             {% comment %} SECCION DE TAREAS DE ANOTACION {% endcomment %}
             {% block anotaciones %}
                 {% if anotaciones_pendientes %}
                   {% for anotacion in anotaciones_pendientes %}
                     <li>
-                      <a href="{% url 'documentos_app:crear_anotacion' anotacion.id %}">
-                          anotacion.id {{ anotacion.id }}
+                      <a class="nav-link-collapse collapsed" data-toggle="collapse" href="#anotacion-{{ anotacion.id }}">
+                        Anotacion {{ forloop.counter }}
                       </a>
+                      <ul class="sidenav-third-level collapse" id="anotacion-{{ anotacion.id }}">
+                          {% for parrafo in anotacion.documento.parrafo.all %}
+                                <li>
+                                  <a href="{% url 'documentos_app:anotacion-especifica' anotacion.id parrafo.id %}">Parrafo {{ forloop.counter }} </a>
+                                </li>
+                          {% endfor %}
+                      </ul>
                     </li>
                   {% endfor %}
                 {% else %}
                   <li>
-                    <a href="#">No tienes tareas de anotacion :)</a>
+                    <a href="#">No tienes tareas de anotacion :)
+                        <i class="fa fa-fw fa-smile"></i>
+                    </a>
+
                   </li>
                 {% endif %}
             {% endblock %}
+
             {% comment %}
             <li>
               <a href="#">Second Level Item</a>
@@ -72,17 +85,20 @@
                 </li>
               </ul>
             </li>
+
             {% endcomment %}
           </ul>
         </li>
+
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Revisiones">
-          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#collapseRevisiones" data-parent="#collapsenavbar">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#menu-revisiones" data-parent="#collapsenavbar">
             <i class="fa fa-fw fa-sitemap"></i>
             <span class="nav-link-text">Revisiones</span>
           </a>
-          <ul class="sidenav-second-level collapse" id="collapseRevisiones">
+          <ul class="sidenav-second-level collapse" id="menu-revisiones">
             {% comment %} SECCION DE TAREAS DE REVISION {% endcomment %}
             {% comment %}
+            {% endcomment %}
             {% block revisiones %}
                 {% if revisiones_pendientes %}
                     {% for revision in revisiones_pendientes %}
@@ -98,7 +114,7 @@
                   </li>
               {% endif %}
             {% endblock %}
-            {% endcomment %}
+
             {% comment %}
             <li>
               <a href="#">Second Level Item</a>
@@ -117,6 +133,7 @@
             {% endcomment %}
           </ul>
         </li>
+
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Link">
           <a class="nav-link" href="#">
             <i class="fa fa-fw fa-link"></i>
@@ -294,6 +311,7 @@
     <!-- Custom scripts for all pages-->
     <script src="{% static 'js/sb-admin.min.js' %}"></script>
     <script src="{% static 'js/cookie/jquery.cookie.js' %}"></script>
+    <script src="{% static 'js/toastr/jquery.toaster.js' %}" type="text/javascript"></script>
     <script src="{% static 'js/jquery.autocompleter.min.js' %}" type="text/javascript"></script>
 
     {% block js_custom %}

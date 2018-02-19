@@ -346,9 +346,107 @@ footer.sticky-footer {
     width: calc(100% - 55px); } }
 
 
-
-
-
-
-
 .hidden { display: none; }
+
+.algo {
+  box-shadow: inset 0px 0px 0px #b3b3b3, 0px 5px 0px 0px #b3b3b3, 0px 10px 5px #999999;
+}
+
+
+/* COLORES PARA LOS BOTONES DE LAS LETRAS */
+/*
+  color1:  Color de las palabras no etiquetadas
+  color2:  COlor de las palabras seleccionadas
+  color3:  Color de las palabras etiquetadas
+*/
+
+.color1-1 {
+  box-shadow: inset 0px 0px 0px #b3b3b3, 0px 5px 0px 0px #b3b3b3, 0px 10px 5px #999999;
+}
+
+.color2 {
+  background-color: #b3b3b3;
+  border-color: #b3b3b3;
+  color: #FFFFFF;
+}
+.color2:hover,
+.color2:focus,
+.color2:active,
+.color2.active,
+.open .dropdown-toggle.color2,
+.color2:active:focus,
+.color2:active:hover,
+.color2.active:hover,
+.color2.active:focus {
+  background-color: #999999;
+  border-color: #999999;
+  color: #FFFFFF;
+}
+.color2:active,
+.color2.active,
+.open .dropdown-toggle.color2 {
+  background-image: none;
+}
+.color2.disabled,
+.color2.disabled:hover,
+.color2.disabled:focus,
+.color2.disabled:active,
+.color2.disabled.active,
+.color2[disabled],
+.color2[disabled]:hover,
+.color2[disabled]:focus,
+.color2[disabled]:active,
+.color2.active[disabled],
+fieldset[disabled] .color2,
+fieldset[disabled] .color2:hover,
+fieldset[disabled] .color2:focus,
+fieldset[disabled] .color2:active,
+fieldset[disabled] .color2.active {
+  background-color: #b3b3b3;
+  border-color: #b3b3b3;
+}
+
+
+.color3 {
+  background-color: #1ab394;
+  border-color: #1ab394;
+  color: #FFFFFF;
+}
+.color3:hover,
+.color3:focus,
+.color3:active,
+.color3.active,
+.open .dropdown-toggle.color3,
+.color3:active:focus,
+.color3:active:hover,
+.color3.active:hover,
+.color3.active:focus {
+  background-color: #18a689;
+  border-color: #18a689;
+  color: #FFFFFF;
+}
+.color3:active,
+.color3.active,
+.open .dropdown-toggle.color3 {
+  background-image: none;
+}
+.color3.disabled,
+.color3.disabled:hover,
+.color3.disabled:focus,
+.color3.disabled:active,
+.color3.disabled.active,
+.color3[disabled],
+.color3[disabled]:hover,
+.color3[disabled]:focus,
+.color3[disabled]:active,
+.color3.active[disabled],
+fieldset[disabled] .color3,
+fieldset[disabled] .color3:hover,
+fieldset[disabled] .color3:focus,
+fieldset[disabled] .color3:active,
+fieldset[disabled] .color3.active {
+  background-color: #1dc5a3;
+  border-color: #1dc5a3;
+}
+
+

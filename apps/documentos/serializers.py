@@ -28,3 +28,13 @@ class TAGLeyesSerializer(serializers.ModelSerializer):
     class Meta:
         model = TAG
         fields = ('id', 'texto')
+
+
+
+class AnotacionSerializer(serializers.ModelSerializer):
+    """ """
+
+    class Meta:
+        model = Anotacion
+        fields = ('is_done',)
+

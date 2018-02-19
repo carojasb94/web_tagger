@@ -10,7 +10,7 @@
         </h1>
         <form method="POST" action="{% url 'registro_app:login' %}">
             {% csrf_token %}
-            <input type="text" name="username" placeholder="Username">
+            <input ty|="text" name="username" placeholder="Username">
             <input type="password" name="password" placeholder="Password">
             <button type="submit" name="enviar">
                 Enviar
