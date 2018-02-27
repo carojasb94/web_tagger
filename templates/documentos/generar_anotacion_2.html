@@ -15,23 +15,41 @@
       <h1>Modos de selección</h1>
       <p>A continuación se muestra las acciones que se pueden tomar para etiquetar los textos, las opciones, etc..</p>
         {% if get_prev_parrafo %}
+            {% if has_argumentacion %}
                 <a class="btn btn-primary btn-xs btn-warning"
                    href="{% url 'documentos_app:anotacion-especifica' anotacion.id get_prev_parrafo.id %}">
                     <i class="fa fa-arrow-left"></i>
                 </a>
+            {% else %}
+                <button class="btn btn-primary btn-xs btn-warning change-parrafo" name="get_prev_parrafo"
+                        id="get_prev_parrafo" data-anotacion="{{ anotacion.id }}"
+                        data-parrafo="{{ get_prev_parrafo.id }}" data-toggle="modal" data-target="#parrafo-modal">
+                    <i class="fa fa-arrow-left"></i>
+                </button>
+            {% endif %}
         {% endif %}
         <button class="btn  btn-xs btn-secondary" name="modo_palabras" id="modo_palabras">Seleccion por Palabra.</button>
         <button class="btn btn-primary btn-xs" name="modo_texto" id="modo_texto">Seleccionar porción de texto.</button>
         <button class="btn btn-primary btn-xs btn-success" name="mostrar_pdf" id="mostrar_pdf">Mostrar archivo original.</button>
         {% if get_next_parrafo %}
-            <a class="btn btn-primary btn-xs btn-warning"
-               href="{% url 'documentos_app:anotacion-especifica' anotacion.id get_next_parrafo.id %}">
-                <i class="fa fa-arrow-right"></i>
-            </a>
+            {% if has_argumentacion %}
+                <a class="btn btn-primary btn-xs btn-warning"
+                   href="{% url 'documentos_app:anotacion-especifica' anotacion.id get_next_parrafo.id %}">
+                    <i class="fa fa-arrow-right"></i>
+                </a>
+            {% else %}
+                <button class="btn btn-primary btn-xs btn-warning change-parrafo" name="get_next_parrafo"
+                        id="get_next_parrafo" data-anotacion="{{ anotacion.id }}"
+                        data-parrafo="{{ get_next_parrafo.id }}" data-toggle="modal" data-target="#parrafo-modal">
+                    <i class="fa fa-arrow-right"></i>
+                </button>
+            {% endif %}
         {% endif %}
+    {% comment %}
         <button class="btn btn-primary btn-xs btn-danger pull-right" data-toggle="modal" data-target="#parrafo-modal">
             Terminar documento
         </button>
+    {% endcomment %}
 
     </div>
     {% block content_2 %}
@@ -85,21 +103,26 @@
                       <div>
                           <select id="seleccionar_modo">
                               <option >Seleccionar</option>
-                              <option value="palabra">Etiquetar palabra</option>
-                              <option value="referencia_articulo">Referencia a articulo</option>
-                              <option value="referencia_jurisprudencia">Referencia a jurisprudencia</option>
-                              <option value="texto_articulo">Texto de articulo</option>
-                              <option value="texto_jurisprudencia">Texto de jurisprudencia</option>
+                              {% for clasificacion in clasificaciones %}
+                                  <option value="{{ clasificacion.key }}">{{ clasificacion.nombre_publico }}</option>
+                              {% endfor %}
                           </select>
                       </div>
                       <div class="small text-muted texto_seleccionado" id="referencia_articulo" style="display: none;">
                           <br/>
-                        <input type="text" id="tag_ley" placeholder="Ley">
-                        <input type="text" id="tag_numero_articulo" placeholder="Numero de Articulo">
-                        <input type="text" id="tag_apartado" placeholder="Apartado">
-                        <input type="text" id="tag_fraccion" placeholder=" Fracción">
-                        <input type="text" id="tag_inciso" placeholder=" inciso">
-                        <input type="text" id="tag_parrafo" placeholder="Parrafo">
+                        <input type="text" id="tag_ley_" placeholder="Ley" required>
+                          <span class=" text-danger">*</span>
+                        <button class="btn btn-info btn-circle" id="add-ley"
+                                type="button" data-toggle="modal"
+                                data-target="#addtag-modal">
+                            <i class="fa fa-plus"></i>
+                        </button>
+
+                        <input type="text" id="tag_numero_articulo" placeholder="Numero de Articulo" required><span class=" text-danger">*</span>
+                        <input type="text" id="tag_apartado" placeholder="Apartado" required>
+                        <input type="text" id="tag_fraccion" placeholder=" Fracción" required>
+                        <input type="text" id="tag_inciso" placeholder=" inciso" required>
+                        <input type="text" id="tag_parrafo" placeholder="Parrafo (1, 15, etc.)" required>
                         <button class="btn  btn-xs btn-primary pull-right" name="referencia_articulo" id="referencia_articulo_enviar"> Guardar </button>
                       </div>
 
@@ -107,20 +130,34 @@
                      <div class="small text-muted" id="texto_etiquetado">_</div>
 
                       <div class="mb-0 text-warning">
-                          <div class="panel panel-default texto_seleccionado"  id="palabra"  style="background-color:#7FB1DC; display: none;">
+                          <div class="panel panel-default texto_seleccionado"  id="palabra" style="display:none;">
+                              <input type="text" data-role="tagsinput" placeholder="Add tags" class="tag label label-tags " />
+                              {% comment %}
+                              <div class="bootstrap-tagsinput">
+                                  <span class="tag label label-primary">Sydney<span data-role="remove"></span></span>
+                                  <span class="tag label label-primary">Beijing<span data-role="remove"></span></span>
+                                  <span class="tag label label-primary">Cairo<span data-role="remove"></span></span>
+                                  <input placeholder="" size="1" type="text">
+                              </div>
+                              {% endcomment %}
+
                               <button class="btn  btn-xs btn-primary pull-right" name="palabra" id="palabra_enviar"> Guardar </button>
                           </div>
 
-                          <div class="panel panel-default texto_seleccionado"  id="referencia_jurisprudencia"  style="background-color:#7FB1DC; display: none;">
+                          <div class="panel panel-default texto_seleccionado"  id="referencia_jurisprudencia" style="display: none;">
                               <button class="btn  btn-xs btn-primary pull-right" name="referencia_jurisprudencia" id="referencia_jurisprudencia_enviar"> Guardar </button>
                           </div>
-                          <div class="small texto_seleccionado" id="texto_articulo"  style="background-color:#7FB1DC; display: none;">
-                              <button class="btn  btn-xs btn-primary guardar-anotacion" name="texto_articulo" id="texto_articulo_enviar"> Guardar </button>
+                          <div class="small texto_seleccionado" id="texto_articulo" style="display: none;">
+                              <button class="btn  btn-xs btn-primary pull-right guardar-anotacion" name="texto_articulo" id="texto_articulo_enviar"> Guardar </button>
                           </div>
 
-                          <div class="small texto_seleccionado" id="texto_jurisprudencia"  style="background-color:#7FB1DC; display: none;">
+                          <div class="small texto_seleccionado" id="texto_jurisprudencia" style="display: none;">
                               <button class="btn  btn-xs btn-primary pull-right" name="texto_jurisprudencia" id="texto_jurisprudencia_enviar"> Guardar </button>
                           </div>
+                          <div class="texto_seleccionado" id="fecha" style="display: none;">
+                              <button class="btn  btn-xs btn-primary pull-right guardar-anotacion" name="texto_articulo" id="fecha_enviar"> Guardar </button>
+                          </div>
+
 
                       </div>
                         {% comment %}
@@ -155,7 +192,6 @@
               </div>
               <!-- Anotaciones-->
     {% comment %}
-{% endcomment %}
               <div class="card mb-3">
                 <div class="card-header">
                   <i class="fa fa-bell-o"></i> Anotaciones realizadas</div>
@@ -205,6 +241,8 @@
                 </div>
                 <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
               </div>
+{% endcomment %}
+
             </div>
         </div>
 
@@ -326,11 +364,46 @@
         </button>
       </div>
       <div class="modal-body">
-          Al darle click a continuar, el documento sera enviado para revisión y ya no podras corregirlo.
+          ¿Que nivel de argumentación consideras que tiene este parrafo?
+            <select id="star-rating">
+                <option value="">Select a rating</option>
+                <option value="10">10</option>
+                <option value="9">9</option>
+                <option value="8">8</option>
+                <option value="7">7</option>
+                <option value="6">6</option>
+                <option value="5">5</option>
+                <option value="4">4</option>
+                <option value="3">3</option>
+                <option value="2">2</option>
+                <option value="1">1</option>
+            </select>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
-        <button class="btn btn-primary" name="terminar-documento" id="terminar-documento" data-dismiss="modal">Aceptar</button>
+        <button class="btn btn-secondary btn-argumentacion" type="button" data-evaluado="false" data-dismiss="modal">Evaluar despues</button>
+        <button class="btn btn-primary btn-argumentacion" name="terminar-documento" data-evaluado="true" id="terminar-documento" data-dismiss="modal">Aceptar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% comment %}  {% endcomment %}
+<div class="modal fade" id="addtag-modal" tabindex="-1" role="dialog" aria-labelledby="addtag-modal-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addtagModalLabel">Agregar TAG.Terminar de etiquetar texto</h5>
+        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <input type="text" id="tag_ley" placeholder="Ley" required>
+          <input type="text" id="tag_ley" placeholder="Alias" required>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-argumentacion" type="button" data-evaluado="false" data-dismiss="modal">Evaluar despues</button>
+        <button class="btn btn-primary btn-argumentacion" name="terminar-documento" data-evaluado="true" id="terminar-documento" data-dismiss="modal">Aceptar</button>
       </div>
     </div>
   </div>
@@ -344,6 +417,24 @@
 {% block js_custom %}
 
 <script>
+// Iniciando plugin de rating de strellas
+//$('#star-rating').starrating();
+console.log("iniciando startrating");
+console.log("iniciando startrating");
+$('#star-rating' ).starrating({
+    initialText:"Evaluar",
+    clickFn: function( selected ) {
+        console.log( 'I clicked star #' + selected );
+    },
+    onClick: function( selected ) {
+        console.log($(selected).find(":selected").val() );
+        argumentacion_parrafo = $(selected).find(":selected").val();
+    },
+
+});
+
+console.log("terminando startrating");
+
 
 function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection
@@ -356,6 +447,15 @@ $.ajaxSetup({
         }
     }
 });
+
+
+// FUNCION PARA VALIDAR UN DICCIONARIO VACIO
+
+function isEmpty(obj) {
+  return Object.keys(obj).length === 0;
+}
+
+
 
 //  GUARDAR LAS PALABRAS EXTRAIDAS DEL ARCHIVO
 //var total_palabras = ["esto","es","un","demo","de","palabras"];
@@ -373,9 +473,11 @@ $('#mostrar_pdf').on('click', function(){
 
 
 var total_palabras = {{ palabras|jsonify }};
-var tag_leyes = {{ tags_leyes }}
+//var tag_leyes = {{ tags_leyes }}
 var id_anotacion = {{ anotacion.id }};
 var id_parrafo = {{ parrafo_id }};
+var argumentacion_parrafo="";
+var siguiente_parrafo="";
 
 // Genera un boton por palabra, para poder etiquetar palabras
 
@@ -392,10 +494,38 @@ console.log(csrftoken, evaluado_por);
 
 var global_information = {};
 
+
+console.log("tags_leyes: ");
 /*  INICIALIZANDO AUTOCOMPLETER DE LEYES  */
-var lista_leyes = {{ lista_leyes }}
+var tags_leyes = {{ tags_leyes|jsonify_leyes  }};
+//var tags_leyes = {};
+console.log(tags_leyes);
+
+
+
+var data = [
+    { 'value': '1', 'label': 'one' },
+    { 'value': '2', 'label': 'two' },
+    { 'value': '3', 'label': 'three' }
+];
+
 $(function () {
-    $('#tag_ley').autocompleter({ source: '/lista-leyes', customLabel:'texto', customValue:'texto', cache:true, cacheExpires:0,  });
+    $('#tag_ley').autocompleter({
+        source: data,
+        //source: tags_leyes,
+        //customLabel:'texto', customValue:'id',
+        customLabel:'label', customValue:'value',
+        //customLabel:'id', customValue:'texto',
+        cache:true, cacheExpires:0,
+        template: '<img src="{{ value }}" alt="Image for autocompleter list item: {{ label }}" /> {{ label }}',
+        callback: function (value, index) {
+            if (value in data){
+                console.log("el valor esta en el diccionario:");
+                console.log(value);
+            }
+
+            console.log('Value ' + value + ' are selected (with index ' + index + ').');
+        }});
 });
 
 /// GENERANDO LA INFORMACION
@@ -407,6 +537,19 @@ $.each(total_palabras, function (key, value) {
 $.each(total_palabras, function (key, value) {
     $('#seleccion_texto').append('<span id='+key+'>'+value+'</span> ');
 });
+
+
+
+/// BOTONES DE BACK Y NEXT
+$('.change-parrafo').on('click', function(element){
+    console.log($(this).data('anotacion'));
+    console.log($(this).data('parrafo'));
+    siguiente_parrafo=$(this).data('parrafo');
+    //abrir modal
+
+});
+
+
 
 
 // CUANDO SE DE CLICK A SELECCION DE PALABRAS (BOTONES)
@@ -521,7 +664,6 @@ $("#texto_plano").mouseup(function(e) {
     console.log("MOUSE UP EN TEXTO PLANO");
         var text="";
       //alert( "Handler for .mouseup() called." );
-
         // OBTENIENDO EL TEXTO SELECCIONADO
         if (window.getSelection) {
             text = window.getSelection().toString();
@@ -529,9 +671,7 @@ $("#texto_plano").mouseup(function(e) {
             text = document.selection.createRange().text;
         }
     console.log(text);
-
     }
-
 });
 
 $("#seleccion_texto").bind("copy", function(e){
@@ -556,7 +696,7 @@ document.addEventListener('copy', function(e) {
 ////////////////////////// FUNCION PARA GUARDAR/PEDIR INFORMACION
 $('#palabra_enviar').on('click', function(){
     if (seleccion_activa && div_activo){
-        //preparar_anotacion('referencia_jurisprudencia');
+        //enviar_anotacion('referencia_jurisprudencia');
         console.log("palabra enviar valido")
     }
     else{
@@ -566,9 +706,10 @@ $('#palabra_enviar').on('click', function(){
 
 
 $('#referencia_articulo_enviar').on('click', function(){
-    if (seleccion_activa && div_activo){
+    if (seleccion_activa){
         //preparar_anotacion('referencia_articulo');
-        console.log("referencia_articulo valido")
+        guardar_referencia_articulo();
+        console.log("referencia_articulo valido");
     }
     else{
         console.log("NO HAY UNA SELECCION ACTIVA o esta modificada ")
@@ -576,10 +717,9 @@ $('#referencia_articulo_enviar').on('click', function(){
 });
 
 
-
 $('#referencia_jurisprudencia_enviar').on('click', function(){
     if (seleccion_activa){
-        preparar_anotacion('referencia_jurisprudencia');
+        enviar_anotacion('referencia_jurisprudencia');
     }
     else{
         console.log("NO HAY UNA SELECCION ACTIVA o esta modificada ")
@@ -588,27 +728,113 @@ $('#referencia_jurisprudencia_enviar').on('click', function(){
 
 $('#texto_articulo_enviar').on('click', function(){
     if (seleccion_activa){
-        preparar_anotacion('texto_articulo');
+        enviar_anotacion('texto_articulo');
     }
     else{
         console.log("NO HAY UNA SELECCION ACTIVA o esta modificada ")
     }
 });
+
+
 
 $('#texto_jurisprudencia_enviar').on('click', function(){
     if (seleccion_activa){
-        preparar_anotacion('texto_jurisprudencia');
+        enviar_anotacion('texto_jurisprudencia');
     }
     else{
         console.log("NO HAY UNA SELECCION ACTIVA o esta modificada ")
     }
 });
 
+$('#fecha_enviar').on('click', function(){
+    if (seleccion_activa){
+        enviar_anotacion('fecha');
+    }
+    else{
+        console.log("NO HAY UNA SELECCION ACTIVA o esta modificada ")
+    }
+});
+
+
 function guardar_palabra(informacion){}
-function guardar_referencia_articulo(informacion){}
 
-function preparar_anotacion(clasificacion){
 
+function guardar_referencia_articulo(){
+    tag_ley = $("#tag_ley").val();
+    tag_numero_articulo = $("#tag_numero_articulo").val();
+    tag_apartado = $("#tag_apartado").val();
+    tag_fraccion = $("#tag_fraccion").val();
+    tag_inciso = $("#tag_inciso").val();
+    tag_parrafo = $("#tag_parrafo").val();
+
+    // Si todos los campos esta
+    if (tag_ley && tag_numero_articulo){
+        // construimos el diccionario de informacion
+        informacion = {clasificacion:'referencia_articulo',
+            anotacion:id_anotacion,
+            parrafo:id_parrafo,
+            tipo_anotacion:seleccion_activa,
+            evaluado_por:evaluado_por,
+            tag_ley:tag_ley,
+            tag_numero_articulo:tag_numero_articulo,
+            tag_apartado:tag_apartado,
+            tag_fraccion:tag_fraccion,
+            tag_inciso:tag_inciso,
+            tag_parrafo:tag_parrafo
+            };
+        // verificamos si es de tipo texto o por palabras la seleccion
+        global_information = informacion;
+        if (seleccion_activa =='texto'){
+            console.log("ENVIAR TEXTO PLANO");
+            informacion['texto'] = $('#texto_etiquetado').html();
+            if (informacion){
+                $('.error_seleccion').hide();
+                console.log(informacion);
+                save_anotacion(informacion);
+                // Quitamos los valores anteriores (limpiamos)
+                $("#tag_ley").val("");
+                $("#tag_numero_articulo").val("");
+                $("#tag_apartado").val("");
+                $("#tag_fraccion").val("");
+                $("#tag_inciso").val("");
+                $("#tag_parrafo").val("");
+            }
+            else{
+                $('.error_seleccion').html("No puedes dejar el texto seleccionado en blanco");
+                $('.error_seleccion').show();
+            }
+        }
+        else if (seleccion_activa =='palabras'){
+            console.log("ENVIAR JSON DE PALABRAS");
+            console.log(palabras_seleccionadas);
+            if (!isEmpty(palabras_seleccionadas)){
+                $('.error_seleccion').hide();
+                informacion['texto']= JSON.stringify(palabras_seleccionadas);
+                save_anotacion(informacion);
+                // Quitamos los valores anteriores (limpiamos)
+                $("#tag_ley").val(" ");
+                $("#tag_numero_articulo").val("");
+                $("#tag_apartado").val("");
+                $("#tag_fraccion").val("");
+                $("#tag_inciso").val("");
+                $("#tag_parrafo").val("");
+            }
+            else{
+                $('.error_seleccion').html("No puedes dejar el texto seleccionado en blanco");
+                $('.error_seleccion').show();
+            }
+        }
+        else{
+        }
+    }
+    else {
+        console.log("NO esta ley o numero de articulo");
+        $('.error_seleccion').html("Los campos con * son requeridos (Ley y Numero de articulo)");
+        $('.error_seleccion').show();
+    }
+}
+
+function enviar_anotacion(clasificacion){
     informacion = {clasificacion:clasificacion,
         anotacion:id_anotacion,
         parrafo:id_parrafo,
@@ -619,13 +845,29 @@ function preparar_anotacion(clasificacion){
     if (seleccion_activa =='texto'){
         console.log("ENVIAR TEXTO PLANO");
         informacion['texto'] = $('#texto_etiquetado').html();
-        console.log(informacion);
-        save_anotacion(informacion);
+        if (informacion){
+            $('.error_seleccion').hide();
+            console.log(informacion);
+            save_anotacion(informacion);
+        }
+        else{
+            $('.error_seleccion').html("No puedes dejar el texto seleccionado en blanco");
+            $('.error_seleccion').show();
+        }
     }
     else if (seleccion_activa =='palabras'){
         console.log("ENVIAR JSON DE PALABRAS");
-        informacion['texto']= JSON.stringify(palabras_seleccionadas);
-        save_anotacion(informacion);
+        console.log(palabras_seleccionadas);
+        if (!isEmpty(palabras_seleccionadas)){
+            $('.error_seleccion').hide();
+            informacion['texto']= JSON.stringify(palabras_seleccionadas);
+            save_anotacion(informacion);
+        }
+        else{
+            $('.error_seleccion').html("No puedes dejar el texto seleccionado en blanco");
+            $('.error_seleccion').show();
+        }
+
     }
     else{
 
@@ -657,16 +899,13 @@ function save_anotacion(informacion){
             // LIMPIAR TEXTOS Y DICCIONARIO DE PALABRAS
             $('#texto_etiquetado').html('');
             palabras_seleccionadas = {};
-
         },
         error:function(error){
             console.log("ERROR AL GUARDAR ");
             //console.log(error.responseText);
             console.log(error.responseText);
-
         }
     });
-
 }
 
 /*          FUNCION PARA GUARDAR EL PARRAFO ACTUAL Y OBTENER EL SIGUIENTE */
@@ -676,8 +915,6 @@ function terminar_documento(){
     $.ajax({url: '/anotacion/'+id_anotacion+'/terminar',
         type:'patch', //dataType: 'json', contentType:'application/json',
         data: {is_done:true},
-
-
         //data: JSON.stringify(informacion),
         //data: informacion,
         success: function(result){
@@ -693,13 +930,58 @@ function terminar_documento(){
         }
     });
 }
-$('#terminar-documento').on('click', function(){
-    console.log("SIGUIENTE PARRAFO");
-    terminar_documento();
 
+//$('#terminar-documento').on('click', function(){
+//    console.log("SIGUIENTE PARRAFO");
+//    terminar_documento();
+//});
+
+function guardar_argumentacion(id_parrafo, calificacion){
+    console.log("guardar_Argumentacion, INFORMACION A ENVIAR: ");
+
+    $.ajax({url: '/parrafo/'+id_parrafo+'/guardar-argumentacion',
+        type:'post', //dataType: 'json', contentType:'application/json',
+        data: {parrafo: id_parrafo, calificacion:calificacion},
+        //data: JSON.stringify(informacion),
+        //data: informacion,
+        success: function(result){
+            console.log("EXITO AL ACTUALIZAR PARRAFO");
+            console.log(result);
+            //location.reload();
+            window.location.href = '/anotacion/'+id_anotacion+'/parrafo/'+siguiente_parrafo;
+        },
+        error:function(error){
+            console.log("ERROR AL ACTUALIZAR PARRAFO ");
+            //console.log(error.responseText);
+            console.log(error.responseText);
+        }
+    });
+}
+
+
+$('.btn-argumentacion').on('click', function(){
+    console.log("le dio click al boton del modal de siguiente parrafo");
+    if ($(this).data('evaluado')==true){
+        console.log("Acepto envuar la evaluacion, validar que lo califico");
+        if (!argumentacion_parrafo){
+            console.log("Falta seleccionar nivel de argumentacion");
+        }else{
+            console.log("Evaluo con "+argumentacion_parrafo+" el parrafo");
+            guardar_argumentacion(id_parrafo, argumentacion_parrafo);
+
+        }
+    }else {
+        window.location.href = '/anotacion/'+id_anotacion+'/parrafo/'+siguiente_parrafo;
+
+    }
 });
 
 
+
+
+$("#add-ley").on('click', function(){
+    console.log("agregar ley");
+});
 
 
 </script>

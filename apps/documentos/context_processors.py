@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 """
+from .models import Clasificacion
 
 def say_hello(request):
     print("say_hello")
@@ -22,6 +23,7 @@ def context_processors_anotaciones(request):
         revisiones_pendientes = request.user.revisor.filter(is_done=False)
         return {'anotaciones_pendientes': anotaciones_pendientes,
                 'revisiones_pendientes':revisiones_pendientes,
+                'clasificaciones':Clasificacion.objects.all().exclude(key='creada_por_usuario')
                 }
     return {}
 

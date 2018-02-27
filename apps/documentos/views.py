@@ -12,9 +12,13 @@ from django.utils.encoding import (smart_unicode)
 from rest_framework import (viewsets)
 from rest_framework.response import (Response)
 from rest_framework import (status)
-from .models import (Anotacion, Documento, Parrafo, Oracion, TAG)
+from .models import (Anotacion, Documento, Parrafo, Oracion, TAG,
+                     EvaluacionParrafo, Clasificacion, TAGPersonal,
+                     ArgumentacionParrafo)
 from .forms import DocumentoForm
-from .serializers import (OracionSerializer, ParrafoSerializer, TAGLeyesSerializer, AnotacionSerializer)
+from .serializers import (OracionSerializer, ParrafoSerializer,
+                          TAGLeyesSerializer, AnotacionSerializer,
+                          ArgumentacionParrafoSerializer)
 
 
 @login_required
@@ -125,9 +129,18 @@ def AnotacionView(request, anotacion_id, parrafo_id):
     tags_leyes={}
     try:
         #INTENTANDO SACAR LAS TAGS
-        tags_leyes = TAG.objects.filter(subtag=TAG.objects.get(texto="leyes")).count()
+        tags_leyes = TAG.objects.filter(subtag=TAG.objects.get(texto="leyes")).values('id','texto')
+        #print("tag leyes: ")
+        #print(tags_leyes)
     except Exception as e:
         print("error al intentar obtener tags de leyes: {0}".format(e))
+
+    #Validar argumentacion del parrafo
+    has_argumentacion=False
+    if (ArgumentacionParrafo.objects.filter(autor=request.user, parrafo=parrafo).exists()):
+        print("ya tiene argumentacion el parrafo")
+        has_argumentacion=True
+
 
     return render(request, template_name=template_name,
                   context={'anotacion':anotacion,
@@ -138,7 +151,9 @@ def AnotacionView(request, anotacion_id, parrafo_id):
                            'parrafo_id':parrafo.id,
                            'tags_leyes':tags_leyes,
                            'parrafo':parrafo,
+                           'has_argumentacion':has_argumentacion,
                            })
+
 
 
 @login_required
@@ -164,6 +179,7 @@ def TerminarDocumentoView(request, anotacion_id):
                            'anotacion_id':anotacion_id})
 
 
+
 ### GUARDAR LA ANOTACION
 @csrf_exempt
 def guardar_anotacion(request):
@@ -179,9 +195,10 @@ def guardar_anotacion(request):
     :return:
     """
     if request.method == 'POST':
-        print("guardar anotacion")
-        print(request.method)
-        print(request.POST)
+        print("funcion guardar_anotacion")
+        print("Validando que venga request.POST")
+        print(request.method, request.POST)
+
         is_valid=True
         import ipdb; ipdb.set_trace()
         if request.POST:
@@ -226,17 +243,100 @@ class OracionViewSet(viewsets.ModelViewSet):
     #    import ipdb; ipdb.set_trace()
     #    request = super(OracionViewSet, self).create(request, *args, **kwargs)
 
-
-
-
     def create(self, request, *args, **kwargs):
         print("METODO CREATE OracionViewSet")
         #import ipdb; ipdb.set_trace()
+        clasificacion = ""
+        informacion_tags = {}
+        if request.data.get('clasificacion', False):
+            print(request.data['clasificacion'])
+            clasificacion = request.data['clasificacion']
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
+        oracion = serializer.instance
+
+        #if
+
+
+        ## Generamos el historial (EvaluacionParrafo)
+
+
+        #Considerando el caso de etiquetado de referenfia a articulo
+        if clasificacion == 'referencia_articulo':
+            #import ipdb; ipdb.set_trace()
+            print("Anotacion de referencia a articulo")
+            #Obtenemos las etiquetas enviadas
+            print(oracion)
+            tag_ley = request.data.get("tag_ley", "")
+            tag_numero_articulo = request.data.get("tag_numero_articulo", "")
+            tag_apartado = request.data.get("tag_apartado", "")
+            tag_fraccion = request.data.get("tag_fraccion", "")
+            tag_inciso = request.data.get("tag_inciso", "")
+            tag_parrafo = request.data.get("tag_parrafo", "")
+
+            #Obteniendo clasificacion
+            custom_classificacion = Clasificacion.objects.get(key='creada_por_usuario')
+
+            if tag_numero_articulo:
+                #tag_numero_articulo = TAG.objects.get(texto='numero_articulo')
+                #Creando tag numero_articulo
+                tna, creado = TAG.objects.get_or_create(subtag=TAG.objects.get(texto='numero_articulo'), texto=tag_numero_articulo)
+                oracion.tags.add(tna)
+                TAGPersonal.objects.get_or_create(tag=tna, alias='default')
+
+            if tag_apartado:
+                #tag_apartado = TAG.objects.get(texto='apartado')
+                #Creando tag numero_articulo
+                ta, creado = TAG.objects.get_or_create(subtag=TAG.objects.get(texto='apartado'), texto=tag_apartado)
+                oracion.tags.add(ta)
+                TAGPersonal.objects.get_or_create(tag=ta, alias='default')
+
+            if tag_fraccion:
+                #tag_fraccion = TAG.objects.get(texto='fraccion')
+                #Creando tag numero_articulo
+                tf, creado = TAG.objects.get_or_create(subtag=TAG.objects.get(texto='fraccion'), texto=tag_fraccion)
+                oracion.tags.add(tf)
+                TAGPersonal.objects.get_or_create(tag=tf, alias='default')
+            if tag_inciso:
+                #tag_inciso = TAG.objects.get(texto='inciso')
+                #Creando tag numero_articulo
+                ti, creado = TAG.objects.get_or_create(subtag=TAG.objects.get(texto='inciso'), texto=tag_inciso)
+                oracion.tags.add(ti)
+                TAGPersonal.objects.get_or_create(tag=ti, alias='default')
+
+            if tag_parrafo:
+                #tag_parrafo = TAG.objects.get(texto='parrafo')
+                #Creando tag numero_articulo
+                tp, creado = TAG.objects.get_or_create(subtag=TAG.objects.get(texto='parrafo'), texto=tag_parrafo)
+                oracion.tags.add(tp)
+                TAGPersonal.objects.get_or_create(tag=tp, alias='default')
+            oracion.save()
+
+
+
+        # Se genera el historial de la anotacion
+
+        self.generar_evaluacion_parrafo(request, oracion)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+    def generar_evaluacion_parrafo(self, request, oracion):
+        """
+        Funcion para generar el historial de modificaciones de una oracion
+        """
+        evaluacion = EvaluacionParrafo.objects.create(
+            autor=request.user,oracion=oracion, texto=oracion.texto,
+            tipo_anotacion=oracion.tipo_anotacion,
+            clasificacion=oracion.clasificacion,
+        )
+
+        if oracion.tags.all():
+            evaluacion.tags.add(*oracion.tags.all())
+        #evaluacion.save()
+
 
 
 class ParrafoViewSet(viewsets.ModelViewSet):
@@ -264,20 +364,33 @@ class ParrafoViewSet(viewsets.ModelViewSet):
         print("update de ParrafoViewSet")
         return super(ParrafoViewSet, self).update(request, *args, **kwargs)
 
+    def guardar_argumentacion(self, request, *args, **kwargs):
+        print("guardar_argumentacion de ParrafoViewSet")
+        import ipdb; ipdb.set_trace()
+        argumentacion = ArgumentacionParrafoSerializer(data=request.POST, context={'request':request})
+        if argumentacion.is_valid():
+            print("argumentacion valida")
+            print(argumentacion.validated_data)
+            # validar que el usuario sea propietario del parrafo evaluado
+            argumentacion.save()
+
+        return super(ParrafoViewSet, self).update(request, *args, **kwargs)
+
 
 
 class TAGSLeyesViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
-    #queryset = TAG.objects.all()
-    queryset = TAG.objects.filter(subtag=TAG.objects.get(texto='leyes'))
+    queryset = TAG.objects.all()
+    #queryset = TAG.objects.filter(subtag=TAG.objects.get(texto='leyes'))
     serializer_class = TAGLeyesSerializer
 
     #def create(self, request, *args, **kwargs):
     #    print("METODO CREATE AnotacionViewSet")
     #    import ipdb; ipdb.set_trace()
     #    request = super(ParrafoViewSet, self).create(request, *args, **kwargs)
+
 
 
 class AnotacionViewSet(viewsets.ModelViewSet):
@@ -291,5 +404,23 @@ class AnotacionViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         print("METODO CREATE AnotacionViewSet")
         import ipdb; ipdb.set_trace()
-        request = super(ParrafoViewSet, self).create(request, *args, **kwargs)
+        request = super(AnotacionViewSet, self).create(request, *args, **kwargs)
+
+
+
+class ArgumentacionParrafoViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    #queryset = TAG.objects.all()
+    queryset = ArgumentacionParrafo.objects.all()
+    serializer_class = ArgumentacionParrafoSerializer
+
+    def create(self, request, *args, **kwargs):
+        print("METODO CREATE ArgumentacionParrafo")
+        import ipdb; ipdb.set_trace()
+        request = super(ArgumentacionParrafoViewSet, self).create(request, *args, **kwargs)
+        return request
+
+
 

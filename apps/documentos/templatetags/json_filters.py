@@ -7,13 +7,26 @@ try:
 except Exception as e:
     import json as simplejson
 
+
 register = Library()
+
 
 def jsonify(object):
     if isinstance(object, QuerySet):
         return mark_safe(serialize('json', object))
     return mark_safe(simplejson.dumps(object))
 
-register.filter('jsonify', jsonify)
 
+def jsonify_leyes(object):
+    """
+    :param object:
+    :return:
+    """
+    return mark_safe(simplejson.dumps([o for o in object]))
+
+
+register.filter('jsonify', jsonify)
+register.filter('jsonify_leyes', jsonify_leyes)
 jsonify.is_safe = True
+jsonify_leyes.is_safe = True
+

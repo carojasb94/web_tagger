@@ -20,6 +20,13 @@
   <link href="{% static 'css/botones.css' %}" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/jquery.autocompleter.css' %}">
 
+  <link rel="stylesheet" href="{% static 'css/bootstrap-tagsinput.css' %}">
+
+  <!-- Plugin para calificar los parrafos -->
+  <link rel="stylesheet" href="{% static 'js/star-rating/dist/star-rating.css' %}">
+
+
+
 
   {% block css %}
   {% endblock %}
@@ -313,6 +320,11 @@
     <script src="{% static 'js/cookie/jquery.cookie.js' %}"></script>
     <script src="{% static 'js/toastr/jquery.toaster.js' %}" type="text/javascript"></script>
     <script src="{% static 'js/jquery.autocompleter.min.js' %}" type="text/javascript"></script>
+
+    <script src="{% static 'js/bootstrap-tagsinput.js' %}"></script>
+
+  <!-- Plugin para calificar los parrafos -->
+    <script src="{% static 'js/star-rating/dist/star-rating.js' %}"></script>
 
     {% block js_custom %}
     {% endblock %}

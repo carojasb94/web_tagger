@@ -164,11 +164,13 @@ class Anotacion(models.Model):
 class Clasificacion(models.Model):
     """ """
 
-    texto = models.CharField(max_length=60, blank=True,
+    key = models.CharField(max_length=60, blank=True,
                              null=True, default="")
+    nombre_publico = models.CharField(max_length=60, blank=True,
+                                      null=True, default="")
 
     def __str__(self):
-        return "{0}".format(self.texto)
+        return "{0}".format(self.key)
 
 
 class TAG(models.Model):
@@ -177,7 +179,6 @@ class TAG(models.Model):
     texto = models.CharField(max_length=1000, blank=True,
                              null=True, default="")
 
-    clasificacion = models.ForeignKey(Clasificacion)
     is_active = models.BooleanField(default=True)
     subtag = models.ForeignKey('self', blank=True, null=True)
 
@@ -187,11 +188,17 @@ class TAG(models.Model):
 
     #def __unicode__(self):
     #    return "{0}".format(self.texto).decode('utf-8')
+    def as_dict(self):
+        return {"key": self.id, "value": self.texto}
+        return "{0} - {1}".format(self.autor, self.calificacion)
+
 
 
 class Oracion(models.Model):
     """  """
-    tags = models.ForeignKey(TAG, related_name='tags', null=True, blank=True)
+    tags = models.ManyToManyField(TAG, related_name='oraciones', null=True, blank=True)
+
+    clasificacion = models.ForeignKey(Clasificacion)
 
     anotacion = models.ForeignKey(Anotacion, related_name='oraciones')
     parrafo = models.ForeignKey(Parrafo, related_name='oraciones')
@@ -216,30 +223,70 @@ class Oracion(models.Model):
         return u"Oracion {0}".format(self.id)
 
 
+
 class EstadoEtiquetado(object):
     """  """
     pass
 
 
-"""
+
 class EvaluacionParrafo(models.Model):
 
-    editado_por = models.ForeignKey(settings.AUTH_USER_MODEL,
-                                    on_delete=models.CASCADE,
-                                    related_name='evaluacion')
+    autor = models.ForeignKey(settings.AUTH_USER_MODEL,
+                              on_delete=models.CASCADE, related_name='evaluacion_parrado')
     oracion = models.ForeignKey(Oracion, related_name='evaluacion')
     fecha_creacion = models.DateTimeField(auto_now_add=True, null=True,
                                           verbose_name='Fecha de creacion/actualizacion de la oracion')
+
+    tags = models.ManyToManyField(TAG, related_name='tags_evaluacion', null=True, blank=True)
+
+    tipo_anotacion = models.CharField(max_length=100, blank=True,
+                                      null=True, default="")
+
+    texto = models.CharField(max_length=2000, blank=True,
+                             null=True, default="")
+    clasificacion = models.ForeignKey(Clasificacion)
+
+    def __str__(self):
+        return "{0} - {1}".format(self.autor, self.clasificacion)
+
+
+
 """
 
-class ArgumentacionParrafo():
-    editado_por = models.OneToOneField(settings.AUTH_USER_MODEL,
-                                       on_delete=models.CASCADE,
-                                       related_name='argumento')
-    oracion = models.ForeignKey(Oracion, related_name='evaluacion')
+"""
+
+class ArgumentacionParrafo(models.Model):
+    autor = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                 on_delete=models.CASCADE,
+                                 related_name='argumento')
+    #editado_por = models.OneToOneField(settings.AUTH_USER_MODEL,
+    #                                   on_delete=models.CASCADE,
+    #                                   related_name='argumento')
+
+    parrafo = models.OneToOneField(Parrafo, related_name='argumentacion')
     calificacion = models.PositiveSmallIntegerField()
+    fecha_creacion = models.DateTimeField(auto_now_add=True, null=True,
+                                          verbose_name='Fecha de la evaluacion')
+
+    def __str__(self):
+        return "{0} - {1}".format(self.autor, self.calificacion)
 
 
+class TAGPersonal(models.Model):
+    """
+    Clase para guardar los alias de los tags que el usuario ocupe
+    recurrentemente
+
+    """
+    tag = models.ForeignKey(TAG)
+    alias = models.CharField(max_length=50, blank=True, null=True)
+    #alias = models.CharField(max_length=50, blank=True, null=True)
+
+    def __str__(self):
+        return "{0}".format(self.alias)
+
+    pass
 
 
 ###################### DEFINIENDO SIGNALS
@@ -287,19 +334,6 @@ def crear_ticket_cepra(sender, **kwargs):
     else:
         pass
 
-
-class TAGPersonal(models.Model):
-    """
-    Clase para guardar los alias de los tags que el usuario ocupe
-    recurrentemente
-
-    """
-    tag = models.ForeignKey(TAG)
-    alias = models.CharField(max_length=50, blank=True, null=True)
-    #alias = models.CharField(max_length=50, blank=True, null=True)
-
-
-    pass
 
 
 

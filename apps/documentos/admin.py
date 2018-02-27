@@ -3,7 +3,8 @@
 from django.contrib import admin
 from .models import (Documento, Anotacion,
                      TAG, Oracion, EstadoEtiquetado, Clasificacion,
-                     Parrafo, DummyParrafo)
+                     Parrafo, DummyParrafo, EvaluacionParrafo,
+                     TAGPersonal, ArgumentacionParrafo)
 
 
 class DocumentoInline(admin.TabularInline):
@@ -50,6 +51,17 @@ class OracionAdmin(admin.ModelAdmin):
 class DummyAdmin(admin.ModelAdmin):
     pass
 
+
+class EvaluacionParrafoAdmin(admin.ModelAdmin):
+    pass
+
+class TAGPersonalAdmin(admin.ModelAdmin):
+    pass
+
+class ArgumentacionParrafoAdmin(admin.ModelAdmin):
+    pass
+
+
 #class EstadoEtiquetadoAdmin(admin.ModelAdmin):
 #    pass
 
@@ -63,6 +75,12 @@ admin.site.register(Clasificacion, ClasificacionAdmin)
 admin.site.register(Parrafo, ParrafoAdmin)
 admin.site.register(Oracion, OracionAdmin)
 admin.site.register(DummyParrafo, DummyAdmin)
+admin.site.register(EvaluacionParrafo, EvaluacionParrafoAdmin)
+admin.site.register(TAGPersonal, TAGPersonalAdmin)
+
+
+admin.site.register(ArgumentacionParrafo, ArgumentacionParrafoAdmin)
+
 
 
 #admin.site.register(EstadoEtiquetado, EstadoEtiquetadoAdmin)
