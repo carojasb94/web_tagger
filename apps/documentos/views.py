@@ -202,7 +202,7 @@ def guardar_anotacion(request):
         print(request.method, request.POST)
 
         is_valid=True
-        import ipdb; ipdb.set_trace()
+        #import ipdb; ipdb.set_trace()
         if request.POST:
             informacion = json.loads(json.dumps(request.POST))
         else:
@@ -378,7 +378,7 @@ class ParrafoViewSet(viewsets.ModelViewSet):
 
     def guardar_argumentacion(self, request, *args, **kwargs):
         print("guardar_argumentacion de ParrafoViewSet")
-        import ipdb; ipdb.set_trace()
+        #import ipdb; ipdb.set_trace()
         argumentacion = ArgumentacionParrafoSerializer(data=request.POST, context={'request':request})
         if argumentacion.is_valid():
             print("argumentacion valida")
@@ -415,7 +415,7 @@ class AnotacionViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         print("METODO CREATE AnotacionViewSet")
-        import ipdb; ipdb.set_trace()
+        #import ipdb; ipdb.set_trace()
         request = super(AnotacionViewSet, self).create(request, *args, **kwargs)
 
 
@@ -430,7 +430,7 @@ class ArgumentacionParrafoViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         print("METODO CREATE ArgumentacionParrafo")
-        import ipdb; ipdb.set_trace()
+        #import ipdb; ipdb.set_trace()
         request = super(ArgumentacionParrafoViewSet, self).create(request, *args, **kwargs)
         return request
 
