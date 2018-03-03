@@ -108,20 +108,22 @@
                               {% endfor %}
                           </select>
                       </div>
-                      <div class="small text-muted texto_seleccionado" id="referencia_articulo" style="display: none;">
-                          <br/>
-                        <input type="text" id="tag_ley_" placeholder="Ley" required>
-                          <span class=" text-danger">*</span>
-                        <button class="btn btn-info btn-circle" id="add-ley"
-                                type="button" data-toggle="modal"
-                                data-target="#addtag-modal">
+                      <div class="small text-muted texto_seleccionado " id="referencia_articulo" style="display: none;">
+
+                        <input type="text" id="tag_ley" placeholder="Ley" style="max-width: 150px;" required><span class=" text-danger">*</span>
+                        <button class="btn btn-info btn-circle" id="add-ley" type="button"
+                                data-toggle="modal" data-target="#addtag-modal">
                             <i class="fa fa-plus"></i>
                         </button>
 
-                        <input type="text" id="tag_numero_articulo" placeholder="Numero de Articulo" required><span class=" text-danger">*</span>
+
+                        <input type="text" id="tag_numero_articulo" placeholder="Numero de Articulo" style="max-width: 150px;" required><span class=" text-danger">*</span>
                         <input type="text" id="tag_apartado" placeholder="Apartado" required>
+                          <br/>
                         <input type="text" id="tag_fraccion" placeholder=" Fracción" required>
+                          <br/>
                         <input type="text" id="tag_inciso" placeholder=" inciso" required>
+                          <br/>
                         <input type="text" id="tag_parrafo" placeholder="Parrafo (1, 15, etc.)" required>
                         <button class="btn  btn-xs btn-primary pull-right" name="referencia_articulo" id="referencia_articulo_enviar"> Guardar </button>
                       </div>
@@ -131,8 +133,9 @@
 
                       <div class="mb-0 text-warning">
                           <div class="panel panel-default texto_seleccionado"  id="palabra" style="display:none;">
-                              <input type="text" data-role="tagsinput" placeholder="Add tags" class="tag label label-tags " />
+                              <input type="text" id="tag_palabra" placeholder="Agregar tag" required>
                               {% comment %}
+                              <input type="text" data-role="tagsinput" placeholder="Add tags" class="tag label label-tags " />
                               <div class="bootstrap-tagsinput">
                                   <span class="tag label label-primary">Sydney<span data-role="remove"></span></span>
                                   <span class="tag label label-primary">Beijing<span data-role="remove"></span></span>
@@ -392,18 +395,20 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="addtagModalLabel">Agregar TAG.Terminar de etiquetar texto</h5>
+        <h5 class="modal-title" id="addtagModalLabel">Agregar TAG </h5>
         <button class="close" type="button" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">×</span>
         </button>
       </div>
       <div class="modal-body">
-          <input type="text" id="tag_ley" placeholder="Ley" required>
-          <input type="text" id="tag_ley" placeholder="Alias" required>
+          <input type="text" id="add_tag_ley" placeholder="Ley" required>
+          <span id="error-alias" class="text-danger hidden" >El alias es requerido</span>
+          <br>
+          <input type="text" id="alias-ley" placeholder="Alias" required>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary btn-argumentacion" type="button" data-evaluado="false" data-dismiss="modal">Evaluar despues</button>
-        <button class="btn btn-primary btn-argumentacion" name="terminar-documento" data-evaluado="true" id="terminar-documento" data-dismiss="modal">Aceptar</button>
+        <button class="btn btn-secondary" type="button" data-evaluado="false" data-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary btn-guardar-tag" name="terminar-documento" data-evaluado="true" id="guardar-tag">Guardar</button>
       </div>
     </div>
   </div>
@@ -419,9 +424,8 @@
 <script>
 // Iniciando plugin de rating de strellas
 //$('#star-rating').starrating();
-console.log("iniciando startrating");
-console.log("iniciando startrating");
-$('#star-rating' ).starrating({
+//console.log("iniciando startrating");
+$('#star-rating').starrating({
     initialText:"Evaluar",
     clickFn: function( selected ) {
         console.log( 'I clicked star #' + selected );
@@ -433,7 +437,7 @@ $('#star-rating' ).starrating({
 
 });
 
-console.log("terminando startrating");
+//console.log("terminando startrating");
 
 
 function csrfSafeMethod(method) {
@@ -489,7 +493,8 @@ var div_activo = "";
 var palabras_seleccionadas={};
 var csrftoken = $.cookie('csrftoken');
 var evaluado_por={{ request.user.id }};
-console.log(csrftoken, evaluado_por);
+var nueva_tag = {};
+//console.log(csrftoken, evaluado_por);
 
 
 var global_information = {};
@@ -498,8 +503,43 @@ var global_information = {};
 console.log("tags_leyes: ");
 /*  INICIALIZANDO AUTOCOMPLETER DE LEYES  */
 var tags_leyes = {{ tags_leyes|jsonify_leyes  }};
+var tags_usuario= {{ tags_usuario|jsonify_leyes }};
 //var tags_leyes = {};
 console.log(tags_leyes);
+//console.log(tags_usuario);
+
+
+var options = {
+	data: tags_usuario,
+    //listLocation: "fields",
+	getValue: "tag__texto",
+    //theme: "blue-light",
+    //theme: "dark",
+    adjustWidth: true,
+
+	template: {
+		type: "description",
+		fields: {
+			description: "alias"
+        }
+    },
+
+    list: {
+        match: {
+            enabled: true
+        },
+        maxNumberOfElements: 10,
+        onChooseEvent: function(a, b) {
+            console.log("Click !!!!!!");
+            nueva_tag['tag'] = $("#tag_ley").getSelectedItemData().id;
+            console.log($("#tag_ley").getSelectedItemIndex());
+            console.log($("#tag_ley").getSelectedItemData());
+        }
+    }
+};
+
+$("#tag_ley").easyAutocomplete(options);
+//$('.easy-autocomplete').css('width', 'auto');
 
 
 
@@ -509,6 +549,7 @@ var data = [
     { 'value': '3', 'label': 'three' }
 ];
 
+/*
 $(function () {
     $('#tag_ley').autocompleter({
         source: data,
@@ -517,16 +558,106 @@ $(function () {
         customLabel:'label', customValue:'value',
         //customLabel:'id', customValue:'texto',
         cache:true, cacheExpires:0,
-        template: '<img src="{{ value }}" alt="Image for autocompleter list item: {{ label }}" /> {{ label }}',
+        template: '<img src="" alt="Image for autocompleter list item: " />',
         callback: function (value, index) {
             if (value in data){
                 console.log("el valor esta en el diccionario:");
                 console.log(value);
+                console.log(data[value])
             }
 
             console.log('Value ' + value + ' are selected (with index ' + index + ').');
         }});
 });
+*/
+
+/*      FUNCIONES PARA EASY AUTOCOMPLETER */
+function guardar_tag_personal(informacion){
+    console.log("INFORMACION A ENVIAR: ");
+    console.log(informacion);
+
+    $.ajax({url: '/crear-tag',
+        type:'post', //dataType: 'json', contentType:'application/json',
+        data: informacion,
+        //data: JSON.stringify(informacion),
+        //data: informacion,
+        success: function(result){
+            console.log("EXITO AL GUARDAR ");
+            console.log(result);
+            var seleccionadas= $('.color3');
+            $.toaster({ message : 'TAG guardada', title : 'OK', priority : 'success' });
+        },
+        error:function(error){
+            console.log("ERROR AL GUARDAR ");
+            console.log(error.responseText);
+        }
+    });
+}
+
+/* Funcion para cachar el envio de guardar tag personal  */
+$('.btn-guardar-tag').on('click', function(){
+    console.log("guardar tag personal");
+    if (!isEmpty(nueva_tag)){
+        console.log("ya se guardo la informacion a enviar de ltag");
+        console.log(nueva_tag);
+        nueva_tag['alias'] = $('#alias-ley').val();
+        console.log(nueva_tag);
+        if (nueva_tag['alias'] == ""){
+            console.log("el alias no se selecciono");
+            $('#error-alias').show();
+            console.log(nueva_tag);
+        }else {
+            // reset del diccionario para nueva tag
+            console.log("ya se asigno el alias");
+            $('#error-alias').hide();
+            guardar_tag_personal(nueva_tag);
+            nueva_tag = {};
+            //reset de los inputs
+            $('#add_tag_ley').val("");
+            $('#alias-ley').val("");
+            $('#addtag-modal').modal('toggle');
+        }
+    }else {
+        console.log("nueva_Tag esta vacio!!");
+    }
+
+});
+
+console.log("iniciando easyautocompleteer add_tag_ley");
+var options = {
+	data: tags_leyes,
+	getValue: "texto",
+    //theme: "blue-light",
+    //theme: "dark",
+    //adjustWidth: true,
+
+    template: {
+        type: "custom",
+        method: function(value, item) {
+            return "<span class='item-" + item.id + "' ></span>" + value;
+        }
+    },
+
+    list: {
+        match: {
+            enabled: true
+        },
+        maxNumberOfElements: 10,
+        onChooseEvent: function(a, b) {
+            console.log("Click !!!!!!");
+            nueva_tag['tag'] = $("#add_tag_ley").getSelectedItemData().id;
+            console.log($("#add_tag_ley").getSelectedItemIndex());
+            console.log($("#add_tag_ley").getSelectedItemData());
+        }
+
+    }
+};
+
+$("#add_tag_ley").easyAutocomplete(options);
+$('.easy-autocomplete').css('width', 'auto');
+
+console.log("termino easyautocompleteer");
+
 
 /// GENERANDO LA INFORMACION
 $.each(total_palabras, function (key, value) {
@@ -692,12 +823,50 @@ document.addEventListener('copy', function(e) {
 });
 
 
+// ON KEYUP para cuando eligan mas de un articulo
+$("#tag_numero_articulo").keyup(function() {
+    if ($(this).val().search(',') != -1){
+        // ocultamos los otros inputs
+        $("#tag_apartado").hide();
+        $("#tag_fraccion").hide();
+        $("#tag_inciso").hide();
+        $("#tag_parrafo").hide();
+    }else{
+        $("#tag_apartado").show();
+        $("#tag_fraccion").show();
+        $("#tag_inciso").show();
+        $("#tag_parrafo").show();
+    }
+});
+$("#tag_numero_articulo").blur(function() {
+    if ($(this).val().search(',') != -1){
+        // ocultamos los otros inputs
+        $("#tag_apartado").hide();
+        $("#tag_fraccion").hide();
+        $("#tag_inciso").hide();
+        $("#tag_parrafo").hide();
+    }else{
+        $("#tag_apartado").show();
+        $("#tag_fraccion").show();
+        $("#tag_inciso").show();
+        $("#tag_parrafo").show();
+
+    }
+});
+
+
+
+
 
 ////////////////////////// FUNCION PARA GUARDAR/PEDIR INFORMACION
 $('#palabra_enviar').on('click', function(){
-    if (seleccion_activa && div_activo){
+    if (seleccion_activa){
         //enviar_anotacion('referencia_jurisprudencia');
-        console.log("palabra enviar valido")
+        tag_palabra = $("#tag_palabra").val();
+        guardar_palabra(tag_palabra);
+
+        //enviar_anotacion('referencia_jurisprudencia');
+
     }
     else{
         console.log("NO HAY UNA SELECCION ACTIVA o esta modificada ");
@@ -708,8 +877,43 @@ $('#palabra_enviar').on('click', function(){
 $('#referencia_articulo_enviar').on('click', function(){
     if (seleccion_activa){
         //preparar_anotacion('referencia_articulo');
-        guardar_referencia_articulo();
         console.log("referencia_articulo valido");
+
+        tag_ley = $("#tag_ley").val();
+        tag_numero_articulo = $("#tag_numero_articulo").val();
+        tag_apartado = $("#tag_apartado").val();
+        tag_fraccion = $("#tag_fraccion").val();
+        tag_inciso = $("#tag_inciso").val();
+        tag_parrafo = $("#tag_parrafo").val();
+
+        if (tag_numero_articulo.search(',') != -1){
+            $.each(tag_numero_articulo.split(','), function(index, value){
+                if (value){
+                    guardar_referencia_articulo(tag_ley, value, "", "", "", "");
+                    console.log("referencia_articulo valido");
+                }
+            });
+        }
+        else{
+            //solo es un articulo
+            console.log(value);
+            guardar_referencia_articulo(tag_ley,
+                    tag_numero_articulo, tag_apartado,
+                    tag_fraccion, tag_inciso, tag_parrafo);
+            guardar_referencia_articulo(tag_articulo);
+        }
+        $("#tag_ley").val(" ");
+        $("#tag_numero_articulo").val("");
+        $("#tag_apartado").val("");
+        $("#tag_fraccion").val("");
+        $("#tag_inciso").val("");
+        $("#tag_parrafo").val("");
+
+
+        $("#tag_apartado").show();
+        $("#tag_fraccion").show();
+        $("#tag_inciso").show();
+        $("#tag_parrafo").show();
     }
     else{
         console.log("NO HAY UNA SELECCION ACTIVA o esta modificada ")
@@ -756,17 +960,55 @@ $('#fecha_enviar').on('click', function(){
 });
 
 
-function guardar_palabra(informacion){}
+function guardar_palabra(tag_palabra){
+    informacion = {clasificacion:'palabra',
+        anotacion:id_anotacion,
+        parrafo:id_parrafo,
+        tipo_anotacion:seleccion_activa,
+        evaluado_por:evaluado_por,
+        tag_palabra:tag_palabra
+        };
+    global_information = informacion;
+    if (seleccion_activa =='texto'){
+        console.log("ENVIAR TEXTO PLANO");
+        informacion['texto'] = $('#texto_etiquetado').html();
+        if (informacion){
+            $('.error_seleccion').hide();
+            console.log(informacion);
+            save_anotacion(informacion);
+            $("#tag_palabra").val("");
+        }
+        else{
+            $('.error_seleccion').html("No puedes dejar el texto seleccionado en blanco");
+            $('.error_seleccion').show();
+        }
+    }
+    else if (seleccion_activa =='palabras'){
+        console.log("ENVIAR JSON DE PALABRAS");
+        console.log(palabras_seleccionadas);
+        if (!isEmpty(palabras_seleccionadas)){
+            $('.error_seleccion').hide();
+            informacion['texto']= JSON.stringify(palabras_seleccionadas);
+            save_anotacion(informacion);
+            $("#tag_palabra").val("");
+        }
+        else{
+            $('.error_seleccion').html("No puedes dejar el texto seleccionado en blanco");
+            $('.error_seleccion').show();
+        }
+
+    }
+    else{
+
+    }
 
 
-function guardar_referencia_articulo(){
-    tag_ley = $("#tag_ley").val();
-    tag_numero_articulo = $("#tag_numero_articulo").val();
-    tag_apartado = $("#tag_apartado").val();
-    tag_fraccion = $("#tag_fraccion").val();
-    tag_inciso = $("#tag_inciso").val();
-    tag_parrafo = $("#tag_parrafo").val();
+}
 
+
+function guardar_referencia_articulo(tag_ley, tag_numero_articulo,
+                                     tag_apartado, tag_fraccion,
+                                     tag_inciso, tag_parrafo){
     // Si todos los campos esta
     if (tag_ley && tag_numero_articulo){
         // construimos el diccionario de informacion

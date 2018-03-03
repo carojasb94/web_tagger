@@ -1,0 +1,126 @@
+
+TODOS TIENE PALABRAS CONTINUAS/DISCONTINUAS
+
+TAG PALABRAS
+	lugar:entidad_federativa -------> significa que 'entidad_federativa' es un subtag de 'lugar' $AUTOCOMPLETAR (buscar en BD)
+	#TAGS INICIALES <<---- nosotros generamos tags iniciales
+	#TAGS SUBIDAS POR LOS IMSMOS USUARIOS
+
+
+TAGS DE REFERENCIA A ARTICULOS
+	TIENE VARIOS TAG
+		TAG DE LEYES () #		# LISTADO_LEYES (LEYES2.TXT) @todo, anteponer texto entre parentesis (ley de ) $AUTOCOMPLETAR (buscar en BD)
+		TAG DE NUMERO_ARTICULO () # 				# TEXTINPUT
+		TAG DE APARTADO () # PUDIERA SER OPCIONAL	# textinput
+		TAG DE FRACCION () # PUDIERA SER OPCIONAL	# textinput
+		TAG DE INCISO () # PUDIERA SER OPCIONAL		# textinput
+		TAG DE PARRAFO () # PUDIERA SER OPCIONAL	# NUMERO
+
+
+MANEJAR CANVAS /// Agregar funcionalidad al dar click derecho sobre el texto para en automatico generar los tres eventos siguientes
+
+TAGS REF A JURISPRUDENCIA
+	no tiene subtags
+
+TAG A TEXTO DE ARTICULO
+	no tiene subtags
+
+TAG A TEXTO DE JURISPRUDENCIA
+	no tiene subtags
+
+
+
+##### 15 dic 2017	
+
+ETIQUETAR FECHAS (categoria)
+	no tiene subtags
+
+
+ETIQUETAR  REFERENCIA A OTRA SENTENCIA  ( referencia a esta sentencia (nombre publico))
+	NUMERO DE PARRAFO (input  NUMBER)	
+
+####################################################
+
+dividir del inicio al considerando	(cada )
+dividir por considerandos 
+al final, la parte de los resolutivos ()
+NOTA: cada uno tiene sus parrafos
+	
+################## actualizacion Febrero
+
+GENERAR TABLA DE HISTORIAL DE CALIFICACIONES DE LOS REVISORES
+
+sin etiqueta - color gris ()
+ya etiquetado - color 2 # color mas gris
+el que se esta seleccionando - color 3
+
+GENERAR
+CUANDO ES SELECCION DE PALABRAS - QUE SE ORDENE LAS PALABRAS SELECCIONADAS
+evaluador puede corregir/eliminar etiquetas
+
+SI EL EVALUADOR DICE QUE UNA ORACION 'ESTA MAL' PUEDE MODIFICARLO O ELIMINARLO (marcar como 'eliminado' el etiquetado)
+SE LE PASA AL EVALUADOR CUANDO TERMINA TODO EL DOCUMENTO
+
+
+
+GUARDAR PARRAFO ACTUAL/PREFERENCIAS DEL USUARIO 
+ALIAS DE ETIQUETAS/
+
+
+GUARDAR UNA TABLA DE 'EVALUACION DE PARRAFO'; ES DECIR
+EVALUARA DE 0 A 10 QUE TAN 'ARGUMENTATIVO' es un parrafo, 
+quien lo puso y que calificacion puso
+
+
+
+
+iota comprado por   					actual
+					0.00026741 			
+					0.00021383
+
+lunr				0.0030308 	
+					0.0020470
+
+
+
+#PETICIONES DE PRUEBA
+ab -c 500 -n 5000 -s 90 http://200.39.171.126:81/tickets/crear-ticket
+#DATO DE PRUEBA
+
+{"ip": "172.16.1.154", "nombre_host": "36584", "interfaz_snmp": "1", "output_plugin": "CRITICAL - Host Unreachable (172.16.1.154)", "descripcion": "Equipo 36584 DOWN stress_test", "comunidad_snmp": "40-Cd-N1b@", "gid": "36584", "nombre_proveedor": "TOTAL PLAY", "tipo_problema": "HOST", "tipo_notificacion": "RECOVERY", "red": "40 redes"}
+
+ab -c 500 -n 5000 -s 90  -A pcasanova;cimov2017.* http://200.39.171.126:81/tickets/crear-ticket
+
+
+
+tarea_B.apply_async(exchange='cola_A', routing_key='cola_A')
+
+
+10.0.10.47
+cgarcia
+Cg1G.*
+
+
+
+gloriaypaz123
+gloriaypaz123
+
+
+
+SOLO NOSTRAR LAS 10 PRIMERAS( MAS USADAS/COMUNES), SI NO ES LA QUE VA A OCUPAR, SE LE ABRE UN POPUP PARA SELECCIONARLA DE TODOS LOS CATALOGOS Y SE AGREGUE A SU LISTA DE ALIAS, con forme valla agregando se aumenta el tamaño de las tags (si agrego una, ahora seran 10+populares + agregadas)
+
+
+
+SPLIT POR COMAS AL NUMERO DE ARTICULOS, SI VIENE MAS DE UN ARTICULO, AGREGAR EL MISMO TEXTO PARA CADA NUMERO DE ARTICULO (COMO SI FUERA UN NUEVO REGISTRO)
+
+
+nivel arumentativo por parrado
+EVALUACION VA POR PARRADO, ir uno por uno del usuario, 
+
+
+
+
+AGREGAR
+
+
+

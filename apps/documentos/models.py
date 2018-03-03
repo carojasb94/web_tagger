@@ -279,6 +279,9 @@ class TAGPersonal(models.Model):
     recurrentemente
 
     """
+    creado_por = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                 on_delete=models.CASCADE,
+                                 related_name='tags')
     tag = models.ForeignKey(TAG)
     alias = models.CharField(max_length=50, blank=True, null=True)
     #alias = models.CharField(max_length=50, blank=True, null=True)

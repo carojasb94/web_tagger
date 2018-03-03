@@ -2,8 +2,8 @@
 from django.conf.urls import url
 
 from .views import (AnotacionGeneralView, AnotacionView, TerminarDocumentoView,
-                    guardar_anotacion, OracionViewSet, ParrafoViewSet,
-                    TAGSLeyesViewSet, AnotacionViewSet, ArgumentacionParrafoViewSet)
+                    OracionViewSet, ParrafoViewSet, TAGSLeyesViewSet,
+                    AnotacionViewSet, TAGPersonalViewSet)
 
 
 guardar_anotacion = OracionViewSet.as_view({'post':'create'})
@@ -16,6 +16,9 @@ listado_leyes = TAGSLeyesViewSet.as_view({'get':'list'})
 
 #guardar_argumentacion = ArgumentacionParrafoViewSet.as_view({'post':'create'})
 
+
+tag_personal = TAGPersonalViewSet.as_view({'post':'create'})
+
 documentos_urls = [
     url(r'^anotacion/(?P<anotacion_id>\d+)$', AnotacionGeneralView, name='anotacion-general'),
     url(r'^anotacion/(?P<anotacion_id>\d+)/parrafo/(?P<parrafo_id>\d+)$', AnotacionView, name='anotacion-especifica'),
@@ -25,6 +28,7 @@ documentos_urls = [
     url(r'^guardar-anotacion', guardar_anotacion, name='guardar-anotacion'),
     url(r'^parrafo/(?P<pk>\d+)/guardar-argumentacion', guardar_argumentacion_1, name='guardar-argumentacion-1'),
     url(r'^parrafo/(?P<pk>\d+)', terminar_parrafo, name='terminar_parrafo'),
+    url(r'^crear-tag', tag_personal, name='crear-tag'),
     #url(r'^guardar-argumentacion', guardar_argumentacion, name='guardar-argumentacion'),
     url(r'^lista-leyes', listado_leyes, name='lista-leyes'),
 

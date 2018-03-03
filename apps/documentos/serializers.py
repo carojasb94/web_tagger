@@ -4,7 +4,8 @@
 from django.contrib.auth.models import User, Group
 from django.shortcuts import (get_object_or_404)
 from rest_framework import serializers
-from .models import (Anotacion, Oracion, Parrafo, TAG, Clasificacion, ArgumentacionParrafo)
+from .models import (Anotacion, Oracion, Parrafo, TAG,
+                     Clasificacion, ArgumentacionParrafo, TAGPersonal)
 
 
 class OracionSerializer(serializers.ModelSerializer):
@@ -75,3 +76,18 @@ class ArgumentacionParrafoSerializer(serializers.ModelSerializer):
         return super(ArgumentacionParrafoSerializer, self).save()
         #request = super(ArgumentacionParrafoViewSet, self).create(request, *args, **kwargs)
     """
+
+
+
+class TAGPersonalSerializer(serializers.ModelSerializer):
+    """ """
+
+    creado_por = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = TAGPersonal
+        fields = ('creado_por', 'tag', 'alias')
+
+
+
+
