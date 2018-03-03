@@ -1,3 +1,4 @@
 pdftohtml -s -i  -noframes  -nomerge -enc UTF-8
 pdftotext -layout -raw -q $original $salidaTXT
 pdftotext -enc UTF-8  -fixed 4 sentencia_ejemplo.PDF
+#python manage.py dumpdata documentos.tag > tags.json
