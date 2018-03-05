@@ -457,4 +457,114 @@ class TAGPersonalViewSet(viewsets.ModelViewSet):
 
 
 
+###############################
+########    VIEWS PARA REVISOR DE DOCUMENTOS
+
+
+@login_required
+def RevisionGeneralView(request, anotacion_id):
+    """
+    :param request:
+    :param anotacion_id:
+    :return:
+    """
+    print("RevisionGeneralView")
+    print(anotacion_id)
+    #import ipdb; ipdb.set_trace()
+    #template_name='documentos/generar_anotacion.html'
+    template_name='documentos/revisar_anotacion.html'
+    anotacion = get_object_or_404(Anotacion, id=anotacion_id)
+    documento = anotacion.documento
+
+
+    if request.method == 'POST':
+        return render(request, template_name=template_name,
+                      context={'anotacion':anotacion,
+                               'palabras': json.dumps(json.loads(anotacion.get_texto())[:500]),
+                               })
+
+    """
+    if ((not documento.juez) or (not documento.secretario) or (not documento.preambulo)
+        or (not documento.resultandos) or (not documento.considerandos)
+        or (not documento.puntos_resolutivos)):
+        #En caso de que algun campo este vacio, se redirige la peticion a complementar
+        # la informacion
+        print("Terminar de llenar la informacion del documento")
+        anotacion_id = id
+        request.session['anotacion_id'] = id
+        return redirect(reverse('documentos_app:terminar_documento',kwargs={'id':documento.id}),
+                        kwargs={'anotacion_id':anotacion_id}
+                        )
+    """
+
+    #Retornar el primer Parrafo del documento/anotacion
+    #import ipdb; ipdb.set_trace()
+    parrafo = documento.get_siguiente_parrafo()
+    print("parrafo: {0} ".format(parrafo))
+    return redirect(reverse('documentos_app:revision-especifica',
+                            kwargs={'anotacion_id':anotacion_id, 'parrafo_id':parrafo.id})
+                    )
+    #kwargs={'anotacion_id':anotacion_id}
+    tags_leyes={}
+    try:
+        #INTENTANDO SACAR LAS TAGS
+        tags_leyes = TAG.objects.filter(subtag=TAG.objects.get(texto="leyes")).count()
+    except Exception as e:
+        print("error al intentar obtener tags de leyes: {0}".format(e))
+
+    return render(request, template_name=template_name,
+                  context={'anotacion':anotacion,
+                           #'palabras': json.loads(parrafo.texto),
+                           'palabras': parrafo.texto,
+                           'parrafo_id':parrafo.id,
+                           'tags_leyes':tags_leyes,
+                           'tags_usuario': request.user.tags.all()
+                           })
+
+
+@login_required
+def RevisionView(request, anotacion_id, parrafo_id):
+    """
+    :param request:
+    :param anotacion_id:
+    :param parrafo_id:
+    :return:
+    """
+    print("RevisionView")
+    print(anotacion_id, parrafo_id)
+    #import ipdb; ipdb.set_trace()
+    #template_name='documentos/generar_anotacion.html'
+    template_name='documentos/revisar_anotacion.html'
+    anotacion = get_object_or_404(Anotacion, id=anotacion_id, revisor=request.user)
+
+
+    parrafo = get_object_or_404(Parrafo, id=parrafo_id, documento__id=anotacion.documento.id)
+    documento = anotacion.documento
+    oraciones = Oracion.objects.filter(parrafo=parrafo)
+    tags_leyes={}
+    try:
+        #INTENTANDO SACAR LAS TAGS
+        tags_leyes = TAG.objects.filter(subtag=TAG.objects.get(texto="leyes")).values('id','texto')
+    except Exception as e:
+        print("error al intentar obtener tags de leyes: {0}".format(e))
+
+    #Validar argumentacion del parrafo
+    has_argumentacion=False
+    if (ArgumentacionParrafo.objects.filter(autor=request.user, parrafo=parrafo).exists()):
+        print("ya tiene argumentacion el parrafo")
+        has_argumentacion=True
+
+    return render(request, template_name=template_name,
+                  context={'anotacion':anotacion,
+                           'get_next_parrafo': parrafo.get_next_parrafo(),
+                           'get_prev_parrafo': parrafo.get_prev_parrafo(),
+                           #'palabras': json.loads(parrafo.texto),
+                           'palabras': parrafo.texto,
+                           'parrafo_id':parrafo.id,
+                           'tags_leyes':tags_leyes,
+                           'parrafo':parrafo,
+                           'has_argumentacion':has_argumentacion,
+                           'tags_usuario': request.user.tags.all().values('tag__texto','alias'),
+                           'oraciones':oraciones
+                           })
 

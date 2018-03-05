@@ -1,0 +1,1293 @@
+{% extends 'usuario.html' %}
+{% load json_filters %}
+{% block title %}
+    Anotacion del documento {{ anotacion }}
+{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block content %}
+
+{% comment %} SECCION DE SELECCION DE MODO Y DE TEXTO SELECICONADO {% endcomment %}
+<div class="row">
+    <div class="col-12">
+      <h1>Modos de selección</h1>
+      <p>A continuación se muestra las acciones que se pueden tomar para etiquetar los textos, las opciones, etc..</p>
+        {% if get_prev_parrafo %}
+            {% if has_argumentacion %}
+                <a class="btn btn-primary btn-xs btn-warning"
+                   href="{% url 'documentos_app:anotacion-especifica' anotacion.id get_prev_parrafo.id %}">
+                    <i class="fa fa-arrow-left"></i>
+                </a>
+            {% else %}
+                <button class="btn btn-primary btn-xs btn-warning change-parrafo" name="get_prev_parrafo"
+                        id="get_prev_parrafo" data-anotacion="{{ anotacion.id }}"
+                        data-parrafo="{{ get_prev_parrafo.id }}" data-toggle="modal" data-target="#parrafo-modal">
+                    <i class="fa fa-arrow-left"></i>
+                </button>
+            {% endif %}
+        {% endif %}
+        <button class="btn  btn-xs btn-secondary" name="modo_palabras" id="modo_palabras">Seleccion por Palabra.</button>
+        <button class="btn btn-primary btn-xs" name="modo_texto" id="modo_texto">Seleccionar porción de texto.</button>
+        <button class="btn btn-primary btn-xs btn-success" name="mostrar_pdf" id="mostrar_pdf">Mostrar archivo original.</button>
+        {% if get_next_parrafo %}
+            {% if has_argumentacion %}
+                <a class="btn btn-primary btn-xs btn-warning"
+                   href="{% url 'documentos_app:anotacion-especifica' anotacion.id get_next_parrafo.id %}">
+                    <i class="fa fa-arrow-right"></i>
+                </a>
+            {% else %}
+                <button class="btn btn-primary btn-xs btn-warning change-parrafo" name="get_next_parrafo"
+                        id="get_next_parrafo" data-anotacion="{{ anotacion.id }}"
+                        data-parrafo="{{ get_next_parrafo.id }}" data-toggle="modal" data-target="#parrafo-modal">
+                    <i class="fa fa-arrow-right"></i>
+                </button>
+            {% endif %}
+        {% endif %}
+    {% comment %}
+        <button class="btn btn-primary btn-xs btn-danger pull-right" data-toggle="modal" data-target="#parrafo-modal">
+            Terminar documento
+        </button>
+    {% endcomment %}
+
+    </div>
+    {% block content_2 %}
+    {% endblock %}
+</div>
+
+{% comment %}
+    <div class="row">
+        <div class="col-md-9" style="background-color:lavender;">
+          <div class="panel panel-default">
+            <div class="panel-body">
+                <h4>Modos de selección</h4>
+                <button class="btn  btn-xs" name="modo_palabras" id="modo_palabras">Seleccion por Palabra.</button>
+                <button class="btn btn-primary btn-xs" name="modo_texto" id="modo_texto">Seleccionar porción de texto.</button>
+                <button class="btn btn-primary btn-xs btn-success" name="mostrar_pdf" id="mostrar_pdf">Mostrar archivo original.</button>
+                <button class="btn btn-primary btn-xs btn-warning" name="mostrar_pdf" id="mostrar_pdf">Siguiente parrafo.</button>
+                </div>
+          </div>
+        </div>
+        <div class="col-md-3" style="background-color:red;">TEXTO SELECCIONADO
+            <p>
+              <textarea class="texto_seleccionado">DUMMY  <span id="0_esto">esto</span></textarea>
+            </p>
+            <div id="texto_seleccionado">
+            </div>
+        </div>
+    </div>
+{% endcomment %}
+
+<br>
+        <div class="row">
+            <div class="col-lg-8">
+              <!-- Example Bar Chart Card-->
+              <div class="card mb-3">
+                <div class="card-header">
+                  <i class="fa fa-file-text"></i> Información en texto plano</div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-sm-8 my-auto"><div style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;" class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div></div><div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:200%;height:200%;left:0; top:0"></div></div></div>
+                        <div class="hidden" id="seleccion_palabras" width="747" height="423" style="display: block; max-width: 747px; max-height: 423px; overflow-y: auto;">
+                        </div>
+                        <div class="hidden" id="seleccion_texto" width="747" height="423" style=" max-width: 747px; max-height: 423px; overflow-y: scroll;">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                      <div class="small text-muted">
+                          <span class="text-danger error_seleccion" id="error_seleccion"></span>
+                      </div>
+
+                      <div class="small text-muted">Seleccionar que tipo de texto se encontro</div>
+                      <div>
+                          <select id="seleccionar_modo">
+                              <option >Seleccionar</option>
+                              {% for clasificacion in clasificaciones %}
+                                  <option value="{{ clasificacion.key }}">{{ clasificacion.nombre_publico }}</option>
+                              {% endfor %}
+                          </select>
+                      </div>
+                      <div class="small text-muted texto_seleccionado " id="referencia_articulo" style="display: none;">
+
+                        <input type="text" id="tag_ley" placeholder="Ley" style="max-width: 150px;" required><span class=" text-danger">*</span>
+                        <button class="btn btn-info btn-circle" id="add-ley" type="button"
+                                data-toggle="modal" data-target="#addtag-modal">
+                            <i class="fa fa-plus"></i>
+                        </button>
+
+
+                        <input type="text" id="tag_numero_articulo" placeholder="Numero de Articulo" style="max-width: 150px;" required><span class=" text-danger">*</span>
+                        <input type="text" id="tag_apartado" placeholder="Apartado" required>
+                          <br/>
+                        <input type="text" id="tag_fraccion" placeholder=" Fracción" required>
+                          <br/>
+                        <input type="text" id="tag_inciso" placeholder=" inciso" required>
+                          <br/>
+                        <input type="text" id="tag_parrafo" placeholder="Parrafo (1, 15, etc.)" required>
+                        <button class="btn  btn-xs btn-primary pull-right" name="referencia_articulo" id="referencia_articulo_enviar"> Guardar </button>
+                      </div>
+
+                      <hr>
+                     <div class="small text-muted" id="texto_etiquetado">_</div>
+
+                      <div class="mb-0 text-warning">
+                          <div class="panel panel-default texto_seleccionado"  id="palabra" style="display:none;">
+                              <input type="text" id="tag_palabra" placeholder="Agregar tag" required>
+                              {% comment %}
+                              <input type="text" data-role="tagsinput" placeholder="Add tags" class="tag label label-tags " />
+                              <div class="bootstrap-tagsinput">
+                                  <span class="tag label label-primary">Sydney<span data-role="remove"></span></span>
+                                  <span class="tag label label-primary">Beijing<span data-role="remove"></span></span>
+                                  <span class="tag label label-primary">Cairo<span data-role="remove"></span></span>
+                                  <input placeholder="" size="1" type="text">
+                              </div>
+                              {% endcomment %}
+
+                              <button class="btn  btn-xs btn-primary pull-right" name="palabra" id="palabra_enviar"> Guardar </button>
+                          </div>
+
+                          <div class="panel panel-default texto_seleccionado"  id="referencia_jurisprudencia" style="display: none;">
+                              <button class="btn  btn-xs btn-primary pull-right" name="referencia_jurisprudencia" id="referencia_jurisprudencia_enviar"> Guardar </button>
+                          </div>
+                          <div class="small texto_seleccionado" id="texto_articulo" style="display: none;">
+                              <button class="btn  btn-xs btn-primary pull-right guardar-anotacion" name="texto_articulo" id="texto_articulo_enviar"> Guardar </button>
+                          </div>
+
+                          <div class="small texto_seleccionado" id="texto_jurisprudencia" style="display: none;">
+                              <button class="btn  btn-xs btn-primary pull-right" name="texto_jurisprudencia" id="texto_jurisprudencia_enviar"> Guardar </button>
+                          </div>
+                          <div class="texto_seleccionado" id="fecha" style="display: none;">
+                              <button class="btn  btn-xs btn-primary pull-right guardar-anotacion" name="texto_articulo" id="fecha_enviar"> Guardar </button>
+                          </div>
+
+
+                      </div>
+                        {% comment %}
+
+                      <hr>
+                      <div class="h4 mb-0 text-warning" >$18,474</div>
+                      <hr>
+                      <div class="h4 mb-0 text-success">$16,219</div>
+                      <div class="small text-muted">YTD Margin</div>
+                        {% endcomment %}
+
+                    </div>
+                  </div>
+                </div>
+                <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <!-- Example Pie Chart Card-->
+              <div class="card mb-3">
+                <div class="card-header">
+                  <i class="fa fa-pie-chart collapse"></i> Mostrar pdf </div>
+
+                <div class="card-body"><div style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;" class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div></div><div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:200%;height:200%;left:0; top:0"></div></div></div>
+                    <div class="div_archivo_pdf hidden" id="div_archivo_pdf">
+                      <div width="457" height="457" style="display: block; width: 457px; height: 457px;">
+                          <embed src="{{ anotacion.get_url_file }}" width="460px" height="460px" />
+                      </div>
+                    </div>
+                </div>
+                <div class="card-footer small text-muted"></div>
+              </div>
+              <!-- Anotaciones-->
+    {% comment %}
+              <div class="card mb-3">
+                <div class="card-header">
+                  <i class="fa fa-bell-o"></i> Anotaciones realizadas</div>
+                <div class="list-group list-group-flush small">
+                  <a class="list-group-item list-group-item-action" href="#">
+                    <div class="media">
+                      <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/45x45" alt="">
+                      <div class="media-body">
+                        <strong>David Miller</strong>posted a new article to
+                        <strong>David Miller Website</strong>.
+                        <div class="text-muted smaller">Today at 5:43 PM - 5m ago</div>
+                      </div>
+                    </div>
+                  </a>
+                  <a class="list-group-item list-group-item-action" href="#">
+                    <div class="media">
+                      <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/45x45" alt="">
+                      <div class="media-body">
+                        <strong>Samantha King</strong>sent you a new message!
+                        <div class="text-muted smaller">Today at 4:37 PM - 1hr ago</div>
+                      </div>
+                    </div>
+                  </a>
+                  <a class="list-group-item list-group-item-action" href="#">
+                    <div class="media">
+                      <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/45x45" alt="">
+                      <div class="media-body">
+                        <strong>Jeffery Wellings</strong>added a new photo to the album
+                        <strong>Beach</strong>.
+                        <div class="text-muted smaller">Today at 4:31 PM - 1hr ago</div>
+                      </div>
+                    </div>
+                  </a>
+                  <a class="list-group-item list-group-item-action" href="#">
+                    <div class="media">
+                      <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/45x45" alt="">
+                      <div class="media-body">
+                        <i class="fa fa-code-fork"></i>
+                        <strong>Monica Dennis</strong>forked the
+                        <strong>startbootstrap-sb-admin</strong>repository on
+                        <strong>GitHub</strong>.
+                        <div class="text-muted smaller">Today at 3:54 PM - 2hrs ago</div>
+                      </div>
+                    </div>
+                  </a>
+                  <a class="list-group-item list-group-item-action" href="#">View all activity...</a>
+                </div>
+                <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+              </div>
+{% endcomment %}
+
+            </div>
+        </div>
+
+{% comment %} SECCION DONDE MOSTRAR EL TEXTO DE SELECCION Y EL PDF ORIGINAL  {% endcomment %}
+{% comment %}
+<div class="row ">
+    <div class="col-sm-8" style="background-color:lavenderblush;"id="textfile-buttons">
+
+        <span class="text-danger error_seleccion" id="error_seleccion"></span>
+        {{ parrafo.texto }}
+        <h3>Texto plano:</h3>
+
+
+        <div class="hidden" id="texto_plano">
+        </div>
+        <div class="hidden" id="seleccion_palabras">
+        </div>
+        <div class="" id="seleccion_texto" style="overflow-y: auto; max-height:350px;">
+        </div>
+
+        <div class="div_archivo_pdf hidden" id="div_archivo_pdf">
+          <h3>Archivo Original (PDF)</h3>
+          <div>
+              <embed src="{{ anotacion.get_url_file }}" width="800px" height="800px" />
+          </div>
+        </div>
+    </div>
+
+    <div class="col-sm-4" style="background-color:lavender;">.col-sm-3
+      <div class="panel panel-default">
+        <div class="panel-body">
+            <h4>Etiquetar: </h4>
+             <select id="seleccionar_modo">
+              <option >Seleccionar la acción a realizar</option>
+              <option value="palabra">Etiquetar palabra</option>
+              <option value="referencia_articulo">Referencia a articulo</option>
+              <option value="referencia_jurisprudencia">Referencia a jurisprudencia</option>
+              <option value="texto_articulo">Texto de articulo</option>
+              <option value="texto_jurisprudencia">Texto de jurisprudencia</option>
+            </select>
+        </div>
+      </div>
+
+        <div class="panel panel-default texto_seleccionado"  id="referencia_jurisprudencia"  style="background-color:#7FB1DC; display: none;">
+            <h4>Etiquetar Referencia a jurisprudencia</h4>
+          <div class="texto" id="referencia_jurisprudencia_texto">
+            <p>
+              <textarea >
+                  DUMMY
+                  <span id="0_esto">esto</span>
+              </textarea>
+            </p>
+          </div>
+          <div class="palabras" id="referencia_jurisprudencia_palabras">
+          </div>
+          <div>
+              <button class="btn  btn-xs btn-primary pull-right" name="enviar" id="referencia_jurisprudencia_enviar"> Guardar </button>
+          </div>
+        </div>
+
+        <div class="panel panel-default texto_seleccionado"  id="texto_articulo"  style="background-color:#7FB1DC; display: none;">
+            <h4>Etiquetar Texto de articulo</h4>
+          <div class="input-val texto" id="texto_articulo_texto">
+          </div>
+          <div class="input-val palabras" id="texto_articulo_palabras">
+          </div>
+          <div>
+              <button class="btn  btn-xs btn-primary guardar-anotacion" name="enviar" id="texto_articulo_enviar"> Guardar </button>
+          </div>
+        </div>
+
+        <div class="panel panel-default texto_seleccionado"  id="texto_jurisprudencia"  style="background-color:#7FB1DC; display: none;">
+            <h4>Etiquetar Texto de jurisprudencia</h4>
+          <div class="texto" id="texto_jurisprudencia_texto">
+            <p>
+              <textarea >
+                  DUMMY
+                  <span id="0_esto">esto</span>
+              </textarea>
+            </p>
+          </div>
+          <div class="palabras" id="texto_jurisprudencia_palabras">
+          </div>
+          <div>
+              <button class="btn  btn-xs btn-primary" name="enviar" id="texto_jurisprudencia_enviar"> Guardar </button>
+          </div>
+        </div>
+
+
+      <div class="panel panel-default">
+        <div class="panel-body">
+            <h4>Texto seleccionado: </h4>
+            <div id="texto_etiquetado">
+            </div>
+        </div>
+      </div>
+
+
+    </div>
+
+
+
+</div>
+{% endcomment %}
+
+
+{% endblock %}
+
+{% comment %} BLOCK DE LOS MODALES  {% endcomment %}
+
+{% block modals %}
+<div class="modal fade" id="parrafo-modal" tabindex="-1" role="dialog" aria-labelledby="parrafo-modal-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Terminar de etiquetar texto</h5>
+        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          ¿Que nivel de argumentación consideras que tiene este parrafo?
+            <select id="star-rating">
+                <option value="">Select a rating</option>
+                <option value="10">10</option>
+                <option value="9">9</option>
+                <option value="8">8</option>
+                <option value="7">7</option>
+                <option value="6">6</option>
+                <option value="5">5</option>
+                <option value="4">4</option>
+                <option value="3">3</option>
+                <option value="2">2</option>
+                <option value="1">1</option>
+            </select>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-argumentacion" type="button" data-evaluado="false" data-dismiss="modal">Evaluar despues</button>
+        <button class="btn btn-primary btn-argumentacion" name="terminar-documento" data-evaluado="true" id="terminar-documento" data-dismiss="modal">Aceptar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% comment %}  {% endcomment %}
+<div class="modal fade" id="addtag-modal" tabindex="-1" role="dialog" aria-labelledby="addtag-modal-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addtagModalLabel">Agregar TAG </h5>
+        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <input type="text" id="add_tag_ley" placeholder="Ley" required>
+          <span id="error-alias" class="text-danger hidden" >El alias es requerido</span>
+          <br>
+          <input type="text" id="alias-ley" placeholder="Alias" required>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" data-evaluado="false" data-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary btn-guardar-tag" name="terminar-documento" data-evaluado="true" id="guardar-tag">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+
+
+
+{% block js_custom %}
+
+<script>
+// Iniciando plugin de rating de strellas
+//$('#star-rating').starrating();
+//console.log("iniciando startrating");
+$('#star-rating').starrating({
+    initialText:"Evaluar",
+    clickFn: function( selected ) {
+        console.log( 'I clicked star #' + selected );
+    },
+    onClick: function( selected ) {
+        console.log($(selected).find(":selected").val() );
+        argumentacion_parrafo = $(selected).find(":selected").val();
+    },
+
+});
+
+//console.log("terminando startrating");
+
+
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+
+
+// FUNCION PARA VALIDAR UN DICCIONARIO VACIO
+
+function isEmpty(obj) {
+  return Object.keys(obj).length === 0;
+}
+
+
+
+//  GUARDAR LAS PALABRAS EXTRAIDAS DEL ARCHIVO
+//var total_palabras = ["esto","es","un","demo","de","palabras"];
+
+{% comment %}
+//var total_palabras = {{ palabras|safe }};
+{% endcomment %}
+
+// Ocultando pdf default y generando logica para volver a mostrarlo
+$("#div_archivo_pdf").hide();
+
+$('#mostrar_pdf').on('click', function(){
+    $('#div_archivo_pdf').toggle();
+});
+
+
+var total_palabras = {{ palabras|jsonify }};
+//var tag_leyes = {{ tags_leyes }}
+var id_anotacion = {{ anotacion.id }};
+var id_parrafo = {{ parrafo_id }};
+var argumentacion_parrafo="";
+var siguiente_parrafo="";
+
+// Genera un boton por palabra, para poder etiquetar palabras
+
+// para saber que esta etiquetando, si palabras o texto
+var seleccion_default='palabras';
+var seleccion_activa=seleccion_default;
+// para saber que esta etiquetando (palabra, texto articulo, etc...)
+var div_activo = "";
+var palabras_seleccionadas={};
+var csrftoken = $.cookie('csrftoken');
+var evaluado_por={{ request.user.id }};
+var nueva_tag = {};
+//console.log(csrftoken, evaluado_por);
+
+
+var global_information = {};
+
+
+console.log("tags_leyes: ");
+/*  INICIALIZANDO AUTOCOMPLETER DE LEYES  */
+var tags_leyes = {{ tags_leyes|jsonify_leyes  }};
+var tags_usuario= {{ tags_usuario|jsonify_leyes }};
+//var tags_leyes = {};
+console.log(tags_leyes);
+//console.log(tags_usuario);
+
+
+var options = {
+	data: tags_usuario,
+    //listLocation: "fields",
+	getValue: "tag__texto",
+    //theme: "blue-light",
+    //theme: "dark",
+    adjustWidth: true,
+
+	template: {
+		type: "description",
+		fields: {
+			description: "alias"
+        }
+    },
+
+    list: {
+        match: {
+            enabled: true
+        },
+        maxNumberOfElements: 10,
+        onChooseEvent: function(a, b) {
+            console.log("Click !!!!!!");
+            nueva_tag['tag'] = $("#tag_ley").getSelectedItemData().id;
+            console.log($("#tag_ley").getSelectedItemIndex());
+            console.log($("#tag_ley").getSelectedItemData());
+        }
+    }
+};
+
+$("#tag_ley").easyAutocomplete(options);
+//$('.easy-autocomplete').css('width', 'auto');
+
+
+
+var data = [
+    { 'value': '1', 'label': 'one' },
+    { 'value': '2', 'label': 'two' },
+    { 'value': '3', 'label': 'three' }
+];
+
+/*
+$(function () {
+    $('#tag_ley').autocompleter({
+        source: data,
+        //source: tags_leyes,
+        //customLabel:'texto', customValue:'id',
+        customLabel:'label', customValue:'value',
+        //customLabel:'id', customValue:'texto',
+        cache:true, cacheExpires:0,
+        template: '<img src="" alt="Image for autocompleter list item: " />',
+        callback: function (value, index) {
+            if (value in data){
+                console.log("el valor esta en el diccionario:");
+                console.log(value);
+                console.log(data[value])
+            }
+
+            console.log('Value ' + value + ' are selected (with index ' + index + ').');
+        }});
+});
+*/
+
+/*      FUNCIONES PARA EASY AUTOCOMPLETER */
+function guardar_tag_personal(informacion){
+    console.log("INFORMACION A ENVIAR: ");
+    console.log(informacion);
+
+    $.ajax({url: '/crear-tag',
+        type:'post', //dataType: 'json', contentType:'application/json',
+        data: informacion,
+        //data: JSON.stringify(informacion),
+        //data: informacion,
+        success: function(result){
+            console.log("EXITO AL GUARDAR ");
+            console.log(result);
+            var seleccionadas= $('.color3');
+            $.toaster({ message : 'TAG guardada', title : 'OK', priority : 'success' });
+        },
+        error:function(error){
+            console.log("ERROR AL GUARDAR ");
+            console.log(error.responseText);
+        }
+    });
+}
+
+/* Funcion para cachar el envio de guardar tag personal  */
+$('.btn-guardar-tag').on('click', function(){
+    console.log("guardar tag personal");
+    if (!isEmpty(nueva_tag)){
+        console.log("ya se guardo la informacion a enviar de ltag");
+        console.log(nueva_tag);
+        nueva_tag['alias'] = $('#alias-ley').val();
+        console.log(nueva_tag);
+        if (nueva_tag['alias'] == ""){
+            console.log("el alias no se selecciono");
+            $('#error-alias').show();
+            console.log(nueva_tag);
+        }else {
+            // reset del diccionario para nueva tag
+            console.log("ya se asigno el alias");
+            $('#error-alias').hide();
+            guardar_tag_personal(nueva_tag);
+            nueva_tag = {};
+            //reset de los inputs
+            $('#add_tag_ley').val("");
+            $('#alias-ley').val("");
+            $('#addtag-modal').modal('toggle');
+        }
+    }else {
+        console.log("nueva_Tag esta vacio!!");
+    }
+
+});
+
+console.log("iniciando easyautocompleteer add_tag_ley");
+var options = {
+	data: tags_leyes,
+	getValue: "texto",
+    //theme: "blue-light",
+    //theme: "dark",
+    //adjustWidth: true,
+
+    template: {
+        type: "custom",
+        method: function(value, item) {
+            return "<span class='item-" + item.id + "' ></span>" + value;
+        }
+    },
+
+    list: {
+        match: {
+            enabled: true
+        },
+        maxNumberOfElements: 10,
+        onChooseEvent: function(a, b) {
+            console.log("Click !!!!!!");
+            nueva_tag['tag'] = $("#add_tag_ley").getSelectedItemData().id;
+            console.log($("#add_tag_ley").getSelectedItemIndex());
+            console.log($("#add_tag_ley").getSelectedItemData());
+        }
+
+    }
+};
+
+$("#add_tag_ley").easyAutocomplete(options);
+$('.easy-autocomplete').css('width', 'auto');
+
+console.log("termino easyautocompleteer");
+
+
+/// GENERANDO LA INFORMACION
+$.each(total_palabras, function (key, value) {
+    $('#seleccion_palabras').append('<button class="btn btn-xs palabra color1 ' +key+ '" id='+key+'>' +value+'</button> ');
+    //$('#seleccion_palabras').append('<button class="btn btn-xs palabra" id='+key+'_'+value+'>' +value+'</button> ');
+
+});
+$.each(total_palabras, function (key, value) {
+    $('#seleccion_texto').append('<span id='+key+'>'+value+'</span> ');
+});
+
+
+
+/// BOTONES DE BACK Y NEXT
+$('.change-parrafo').on('click', function(element){
+    console.log($(this).data('anotacion'));
+    console.log($(this).data('parrafo'));
+    siguiente_parrafo=$(this).data('parrafo');
+    //abrir modal
+
+});
+
+
+
+
+// CUANDO SE DE CLICK A SELECCION DE PALABRAS (BOTONES)
+// SE OCULTA EL TEXTO PLANO
+$('#modo_palabras').on('click', function(){
+    console.log("Click a modo palabras");
+    $('#seleccion_texto').hide();
+    //$('#texto_plano').hide();
+    {% comment %}
+    $.each(total_palabras, function (key, value) {
+        console.log(key, value);
+            $('#seleccion_palabras').append('<button class="btn btn-xs palabra" id='+
+                    key+'_'+value+'>' +value+'</button> ');
+            });
+    {% endcomment %}
+    seleccion_activa = "palabras";
+    $('.error_seleccion').html("");
+    // eliminar lo que halla previamente
+    $('#texto_etiquetado').html("");
+    $('#seleccion_palabras').show();
+
+});
+
+
+// CUANDO SE DE CLICK A SELECCION TEXTO
+// SE OCULTAN LAS PALABRAS (BOTONES)
+$('#modo_texto').on('click', function(){
+    console.log("Click a modo modo_texto");
+    $('#seleccion_palabras').hide();
+    //$('#texto_plano').hide();
+    {% comment %}
+    $.each(total_palabras, function (key, value) {
+        console.log(key, value);
+            $('#seleccion_texto').append('<span id='+key+'>'+value+'</span> ');
+    });
+    {% endcomment %}
+    seleccion_activa = "texto";
+    $('.error_seleccion').html("");
+    // eliminar lo que halla previamente
+    $('#texto_etiquetado').html("");
+    $('#seleccion_texto').show();
+});
+
+
+// Funcion que oculta todos los div's
+// y se muestra el div del modo seleccionado (texto_jurisprudencia, referencia_, etc..)
+$('#seleccionar_modo').on('change', function(){
+    var seleccion = $('#seleccionar_modo');
+    var div_seleccion = '#'+seleccion.val(); //referencia_articulo;
+    div_activo = $(div_seleccion);
+    console.log(seleccion);
+    console.log(seleccion.val());
+
+    $('.texto_seleccionado').hide();
+    $('.error_seleccion').html("");
+    div_activo.show();
+    // reseteando diccionario de palabras
+    //palabras_seleccionadas={};
+    // reseteando html de texto plano
+    //$('#texto_etiquetado').html("");
+
+});
+
+
+//AGREGANDO FUNCIONALIDAD A LOS 'BOTONES' de las palabras
+/*
+$('.palabra').on('click', function(palabra){
+    console.log("DIO CLICK A UNA PALABRA");
+});
+*/
+
+//AGREGANDO FUNCIONALIDAD A LOS 'BOTONES' de las palabras
+$('#seleccion_palabras').on('click', '.palabra', function(a,b,c){
+    console.log("DIO CLICK A UNA PALABRA (delegacion de funcion)");
+    console.log(a, b, c );
+    console.log(this.id, $(this).html());
+        //$('.error_seleccion').toggle();
+
+        //console.log($(div_activo).appendTo('.'+seleccion_activa));
+        console.log($(div_activo).find('.'+seleccion_activa));
+        if (this.id in palabras_seleccionadas){
+            console.log("YA EXISTE ESE ELEMNTO");
+            delete palabras_seleccionadas[this.id];
+            $(this).removeClass('color3');
+            sorted_words = Object.values(palabras_seleccionadas);
+            $('#texto_etiquetado').html('');
+            for (var key in sorted_words){
+                $('#texto_etiquetado').append('<span>'+sorted_words[key] +'</span> ');
+            }
+            //$('#texto_etiquetado').append('<span id='+this.id+'>'+ $(this).html()+'</span> ');
+        }
+        else{
+            //$(div_activo).find('.'+seleccion_activa).append( '<span id='+this.id+'>'+ $(this).html()+'</span> ');
+            //$(div_activo).find('.'+seleccion_activa).append( );
+            /* ORDENAR LAS PALABRAS DEL DICCIONARIO Y MOSTRAR CONFORME A PARECIERON*/
+            //$('#texto_etiquetado').append('<span id='+this.id+'>'+ $(this).html()+'</span> ');
+            palabras_seleccionadas[this.id] = $(this).html();
+            $(this).addClass('color3');
+            $('#texto_etiquetado').html('');
+            sorted_words = Object.values(palabras_seleccionadas);
+            for (var key in sorted_words){
+                $('#texto_etiquetado').append('<span>'+sorted_words[key] +'</span> ');
+            }
+            console.log(palabras_seleccionadas);
+        }
+});
+
+
+$("#texto_plano").mouseup(function(e) {
+    e.preventDefault();
+    if (seleccion_activa == "texto"){
+    console.log("MOUSE UP EN TEXTO PLANO");
+        var text="";
+      //alert( "Handler for .mouseup() called." );
+        // OBTENIENDO EL TEXTO SELECCIONADO
+        if (window.getSelection) {
+            text = window.getSelection().toString();
+        } else if (document.selection && document.selection.type != "Control") {
+            text = document.selection.createRange().text;
+        }
+    console.log(text);
+    }
+});
+
+$("#seleccion_texto").bind("copy", function(e){
+    // access the clipboard using the api
+    console.log("sebreescribiendo el metodo paste");
+    console.log(e);
+    var pastedData = e.clipboardData.getData('text');
+
+    console.log(pastedData);
+    //alert(pastedData);
+} );
+
+
+document.addEventListener('copy', function(e) {
+  console.log('copied  _');
+  e.clipboardData.setData('text/plain', 'Hello World!');
+  e.preventDefault();
+});
+
+
+// ON KEYUP para cuando eligan mas de un articulo
+$("#tag_numero_articulo").keyup(function() {
+    if ($(this).val().search(',') != -1){
+        // ocultamos los otros inputs
+        $("#tag_apartado").hide();
+        $("#tag_fraccion").hide();
+        $("#tag_inciso").hide();
+        $("#tag_parrafo").hide();
+    }else{
+        $("#tag_apartado").show();
+        $("#tag_fraccion").show();
+        $("#tag_inciso").show();
+        $("#tag_parrafo").show();
+    }
+});
+$("#tag_numero_articulo").blur(function() {
+    if ($(this).val().search(',') != -1){
+        // ocultamos los otros inputs
+        $("#tag_apartado").hide();
+        $("#tag_fraccion").hide();
+        $("#tag_inciso").hide();
+        $("#tag_parrafo").hide();
+    }else{
+        $("#tag_apartado").show();
+        $("#tag_fraccion").show();
+        $("#tag_inciso").show();
+        $("#tag_parrafo").show();
+
+    }
+});
+
+
+
+
+
+////////////////////////// FUNCION PARA GUARDAR/PEDIR INFORMACION
+$('#palabra_enviar').on('click', function(){
+    if (seleccion_activa){
+        //enviar_anotacion('referencia_jurisprudencia');
+        tag_palabra = $("#tag_palabra").val();
+        guardar_palabra(tag_palabra);
+
+        //enviar_anotacion('referencia_jurisprudencia');
+
+    }
+    else{
+        console.log("NO HAY UNA SELECCION ACTIVA o esta modificada ");
+    }
+});
+
+
+$('#referencia_articulo_enviar').on('click', function(){
+    if (seleccion_activa){
+        //preparar_anotacion('referencia_articulo');
+        console.log("referencia_articulo valido");
+
+        tag_ley = $("#tag_ley").val();
+        tag_numero_articulo = $("#tag_numero_articulo").val();
+        tag_apartado = $("#tag_apartado").val();
+        tag_fraccion = $("#tag_fraccion").val();
+        tag_inciso = $("#tag_inciso").val();
+        tag_parrafo = $("#tag_parrafo").val();
+
+        if (tag_numero_articulo.search(',') != -1){
+            $.each(tag_numero_articulo.split(','), function(index, value){
+                if (value){
+                    guardar_referencia_articulo(tag_ley, value, "", "", "", "");
+                    console.log("referencia_articulo valido");
+                }
+            });
+        }
+        else{
+            //solo es un articulo
+            console.log(value);
+            guardar_referencia_articulo(tag_ley,
+                    tag_numero_articulo, tag_apartado,
+                    tag_fraccion, tag_inciso, tag_parrafo);
+            guardar_referencia_articulo(tag_articulo);
+        }
+        $("#tag_ley").val(" ");
+        $("#tag_numero_articulo").val("");
+        $("#tag_apartado").val("");
+        $("#tag_fraccion").val("");
+        $("#tag_inciso").val("");
+        $("#tag_parrafo").val("");
+
+
+        $("#tag_apartado").show();
+        $("#tag_fraccion").show();
+        $("#tag_inciso").show();
+        $("#tag_parrafo").show();
+    }
+    else{
+        console.log("NO HAY UNA SELECCION ACTIVA o esta modificada ")
+    }
+});
+
+
+$('#referencia_jurisprudencia_enviar').on('click', function(){
+    if (seleccion_activa){
+        enviar_anotacion('referencia_jurisprudencia');
+    }
+    else{
+        console.log("NO HAY UNA SELECCION ACTIVA o esta modificada ")
+    }
+});
+
+$('#texto_articulo_enviar').on('click', function(){
+    if (seleccion_activa){
+        enviar_anotacion('texto_articulo');
+    }
+    else{
+        console.log("NO HAY UNA SELECCION ACTIVA o esta modificada ")
+    }
+});
+
+
+
+$('#texto_jurisprudencia_enviar').on('click', function(){
+    if (seleccion_activa){
+        enviar_anotacion('texto_jurisprudencia');
+    }
+    else{
+        console.log("NO HAY UNA SELECCION ACTIVA o esta modificada ")
+    }
+});
+
+$('#fecha_enviar').on('click', function(){
+    if (seleccion_activa){
+        enviar_anotacion('fecha');
+    }
+    else{
+        console.log("NO HAY UNA SELECCION ACTIVA o esta modificada ")
+    }
+});
+
+
+function guardar_palabra(tag_palabra){
+    informacion = {clasificacion:'palabra',
+        anotacion:id_anotacion,
+        parrafo:id_parrafo,
+        tipo_anotacion:seleccion_activa,
+        evaluado_por:evaluado_por,
+        tag_palabra:tag_palabra
+        };
+    global_information = informacion;
+    if (seleccion_activa =='texto'){
+        console.log("ENVIAR TEXTO PLANO");
+        informacion['texto'] = $('#texto_etiquetado').html();
+        if (informacion){
+            $('.error_seleccion').hide();
+            console.log(informacion);
+            save_anotacion(informacion);
+            $("#tag_palabra").val("");
+        }
+        else{
+            $('.error_seleccion').html("No puedes dejar el texto seleccionado en blanco");
+            $('.error_seleccion').show();
+        }
+    }
+    else if (seleccion_activa =='palabras'){
+        console.log("ENVIAR JSON DE PALABRAS");
+        console.log(palabras_seleccionadas);
+        if (!isEmpty(palabras_seleccionadas)){
+            $('.error_seleccion').hide();
+            informacion['texto']= JSON.stringify(palabras_seleccionadas);
+            save_anotacion(informacion);
+            $("#tag_palabra").val("");
+        }
+        else{
+            $('.error_seleccion').html("No puedes dejar el texto seleccionado en blanco");
+            $('.error_seleccion').show();
+        }
+
+    }
+    else{
+
+    }
+
+
+}
+
+
+function guardar_referencia_articulo(tag_ley, tag_numero_articulo,
+                                     tag_apartado, tag_fraccion,
+                                     tag_inciso, tag_parrafo){
+    // Si todos los campos esta
+    if (tag_ley && tag_numero_articulo){
+        // construimos el diccionario de informacion
+        informacion = {clasificacion:'referencia_articulo',
+            anotacion:id_anotacion,
+            parrafo:id_parrafo,
+            tipo_anotacion:seleccion_activa,
+            evaluado_por:evaluado_por,
+            tag_ley:tag_ley,
+            tag_numero_articulo:tag_numero_articulo,
+            tag_apartado:tag_apartado,
+            tag_fraccion:tag_fraccion,
+            tag_inciso:tag_inciso,
+            tag_parrafo:tag_parrafo
+            };
+        // verificamos si es de tipo texto o por palabras la seleccion
+        global_information = informacion;
+        if (seleccion_activa =='texto'){
+            console.log("ENVIAR TEXTO PLANO");
+            informacion['texto'] = $('#texto_etiquetado').html();
+            if (informacion){
+                $('.error_seleccion').hide();
+                console.log(informacion);
+                save_anotacion(informacion);
+                // Quitamos los valores anteriores (limpiamos)
+                $("#tag_ley").val("");
+                $("#tag_numero_articulo").val("");
+                $("#tag_apartado").val("");
+                $("#tag_fraccion").val("");
+                $("#tag_inciso").val("");
+                $("#tag_parrafo").val("");
+            }
+            else{
+                $('.error_seleccion').html("No puedes dejar el texto seleccionado en blanco");
+                $('.error_seleccion').show();
+            }
+        }
+        else if (seleccion_activa =='palabras'){
+            console.log("ENVIAR JSON DE PALABRAS");
+            console.log(palabras_seleccionadas);
+            if (!isEmpty(palabras_seleccionadas)){
+                $('.error_seleccion').hide();
+                informacion['texto']= JSON.stringify(palabras_seleccionadas);
+                save_anotacion(informacion);
+                // Quitamos los valores anteriores (limpiamos)
+                $("#tag_ley").val(" ");
+                $("#tag_numero_articulo").val("");
+                $("#tag_apartado").val("");
+                $("#tag_fraccion").val("");
+                $("#tag_inciso").val("");
+                $("#tag_parrafo").val("");
+            }
+            else{
+                $('.error_seleccion').html("No puedes dejar el texto seleccionado en blanco");
+                $('.error_seleccion').show();
+            }
+        }
+        else{
+        }
+    }
+    else {
+        console.log("NO esta ley o numero de articulo");
+        $('.error_seleccion').html("Los campos con * son requeridos (Ley y Numero de articulo)");
+        $('.error_seleccion').show();
+    }
+}
+
+function enviar_anotacion(clasificacion){
+    informacion = {clasificacion:clasificacion,
+        anotacion:id_anotacion,
+        parrafo:id_parrafo,
+        tipo_anotacion:seleccion_activa,
+        evaluado_por:evaluado_por
+        };
+    global_information = informacion;
+    if (seleccion_activa =='texto'){
+        console.log("ENVIAR TEXTO PLANO");
+        informacion['texto'] = $('#texto_etiquetado').html();
+        if (informacion){
+            $('.error_seleccion').hide();
+            console.log(informacion);
+            save_anotacion(informacion);
+        }
+        else{
+            $('.error_seleccion').html("No puedes dejar el texto seleccionado en blanco");
+            $('.error_seleccion').show();
+        }
+    }
+    else if (seleccion_activa =='palabras'){
+        console.log("ENVIAR JSON DE PALABRAS");
+        console.log(palabras_seleccionadas);
+        if (!isEmpty(palabras_seleccionadas)){
+            $('.error_seleccion').hide();
+            informacion['texto']= JSON.stringify(palabras_seleccionadas);
+            save_anotacion(informacion);
+        }
+        else{
+            $('.error_seleccion').html("No puedes dejar el texto seleccionado en blanco");
+            $('.error_seleccion').show();
+        }
+
+    }
+    else{
+
+    }
+
+}
+
+function save_anotacion(informacion){
+    console.log("INFORMACION A ENVIAR: ");
+    console.log(informacion);
+
+    $.ajax({url: '/guardar-anotacion',
+        type:'post', //dataType: 'json', contentType:'application/json',
+        data: informacion,
+        //data: JSON.stringify(informacion),
+        //data: informacion,
+        success: function(result){
+            console.log("EXITO AL GUARDAR ");
+            console.log(result);
+            /* cambiar el color de las palabras que fueron seleccionadas*/
+            var seleccionadas= $('.color3');
+            console.log("palabras con clase color3");
+            console.log(seleccionadas);
+            $(seleccionadas).removeClass('color3');
+            // agregando el color 2, dde las palabras ya etiquetadas
+            $(seleccionadas).addClass('color2');
+            // Mostrando mensaje de que se guardo correctamente
+            $.toaster({ message : 'Anotación guardada', title : 'OK', priority : 'success' });
+            // LIMPIAR TEXTOS Y DICCIONARIO DE PALABRAS
+            $('#texto_etiquetado').html('');
+            palabras_seleccionadas = {};
+        },
+        error:function(error){
+            console.log("ERROR AL GUARDAR ");
+            //console.log(error.responseText);
+            console.log(error.responseText);
+        }
+    });
+}
+
+/*          FUNCION PARA GUARDAR EL PARRAFO ACTUAL Y OBTENER EL SIGUIENTE */
+function terminar_documento(){
+    console.log("INFORMACION A ENVIAR: ");
+
+    $.ajax({url: '/anotacion/'+id_anotacion+'/terminar',
+        type:'patch', //dataType: 'json', contentType:'application/json',
+        data: {is_done:true},
+        //data: JSON.stringify(informacion),
+        //data: informacion,
+        success: function(result){
+            console.log("EXITO AL ACTUALIZAR PARRAFO");
+            console.log(result);
+            //location.reload();
+            window.location.replace("/perfil");
+        },
+        error:function(error){
+            console.log("ERROR AL ACTUALIZAR PARRAFO ");
+            //console.log(error.responseText);
+            console.log(error.responseText);
+        }
+    });
+}
+
+//$('#terminar-documento').on('click', function(){
+//    console.log("SIGUIENTE PARRAFO");
+//    terminar_documento();
+//});
+
+function guardar_argumentacion(id_parrafo, calificacion){
+    console.log("guardar_Argumentacion, INFORMACION A ENVIAR: ");
+
+    $.ajax({url: '/parrafo/'+id_parrafo+'/guardar-argumentacion',
+        type:'post', //dataType: 'json', contentType:'application/json',
+        data: {parrafo: id_parrafo, calificacion:calificacion},
+        //data: JSON.stringify(informacion),
+        //data: informacion,
+        success: function(result){
+            console.log("EXITO AL ACTUALIZAR PARRAFO");
+            console.log(result);
+            //location.reload();
+            window.location.href = '/anotacion/'+id_anotacion+'/parrafo/'+siguiente_parrafo;
+        },
+        error:function(error){
+            console.log("ERROR AL ACTUALIZAR PARRAFO ");
+            //console.log(error.responseText);
+            console.log(error.responseText);
+        }
+    });
+}
+
+
+$('.btn-argumentacion').on('click', function(){
+    console.log("le dio click al boton del modal de siguiente parrafo");
+    if ($(this).data('evaluado')==true){
+        console.log("Acepto envuar la evaluacion, validar que lo califico");
+        if (!argumentacion_parrafo){
+            console.log("Falta seleccionar nivel de argumentacion");
+        }else{
+            console.log("Evaluo con "+argumentacion_parrafo+" el parrafo");
+            guardar_argumentacion(id_parrafo, argumentacion_parrafo);
+
+        }
+    }else {
+        window.location.href = '/anotacion/'+id_anotacion+'/parrafo/'+siguiente_parrafo;
+
+    }
+});
+
+
+
+
+$("#add-ley").on('click', function(){
+    console.log("agregar ley");
+});
+
+
+</script>
+
+<script type="text/javascript">
+
+{% comment %} FUNCION PARA DETECTAR SELECCION DE TEXTO {% endcomment %}
+function getSelectedText() {
+    var text = "";
+    if (typeof window.getSelection != "undefined") {
+        text = window.getSelection().toString();
+    } else if (typeof document.selection != "undefined" && document.selection.type == "Text") {
+        text = document.selection.createRange().text;
+    }
+    return text;
+}
+
+function doSomethingWithSelectedText() {
+    var selectedText = getSelectedText();
+    console.log("div_activo: ");
+    console.log(div_activo);
+
+    if (selectedText) {
+        if (div_activo){
+            console.log("texto seleccionado: ");
+            console.log(selectedText);
+            $('#texto_etiquetado').html(selectedText);
+            //alert("Got selected text " + selectedText);
+        }
+        else{
+            console.log("NO HAY UN DIV ACTIVO");
+            $('.error_seleccion').html("Primero debes seleccionar la acción que realizaras")
+        }
+    }
+}
+
+//document.onmouseup = doSomethingWithSelectedText;
+//document.onkeyup = doSomethingWithSelectedText;
+
+
+$("#seleccion_texto").mouseup(doSomethingWithSelectedText);
+$("#seleccion_texto").keyup(doSomethingWithSelectedText);
+
+//onmouseup = doSomethingWithSelectedText;
+//onkeyup = doSomethingWithSelectedText;
+
+
+    {% comment %}
+    //console.log("CUSTOM SCRIPT DE FUNCIONALIDAD A BUTON MOUSE");
+    if (document.addEventListener) { // IE >= 9; other browsers
+        document.addEventListener('contextmenu', function(e) {
+            console.log("CONTEXT MENU OPEN");
+            //alert("You've tried to open context menu"); //here you draw your own menu
+            e.preventDefault();
+        }, false);
+    } else { // IE < 9
+        document.attachEvent('oncontextmenu', function() {
+            console.log("CONTEXT MENU OPEN");
+            alert("You've tried to open context menu");
+            window.event.returnValue = false;
+        });
+    }
+    {% endcomment %}
+
+</script>
+
+{% endblock %}

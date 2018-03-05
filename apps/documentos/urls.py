@@ -3,7 +3,7 @@ from django.conf.urls import url
 
 from .views import (AnotacionGeneralView, AnotacionView, TerminarDocumentoView,
                     OracionViewSet, ParrafoViewSet, TAGSLeyesViewSet,
-                    AnotacionViewSet, TAGPersonalViewSet)
+                    AnotacionViewSet, TAGPersonalViewSet, RevisionGeneralView, RevisionView)
 
 
 guardar_anotacion = OracionViewSet.as_view({'post':'create'})
@@ -19,6 +19,9 @@ listado_leyes = TAGSLeyesViewSet.as_view({'get':'list'})
 
 tag_personal = TAGPersonalViewSet.as_view({'post':'create'})
 
+
+# VIEWS DE REVISIONES
+
 documentos_urls = [
     url(r'^anotacion/(?P<anotacion_id>\d+)$', AnotacionGeneralView, name='anotacion-general'),
     url(r'^anotacion/(?P<anotacion_id>\d+)/parrafo/(?P<parrafo_id>\d+)$', AnotacionView, name='anotacion-especifica'),
@@ -31,6 +34,12 @@ documentos_urls = [
     url(r'^crear-tag', tag_personal, name='crear-tag'),
     #url(r'^guardar-argumentacion', guardar_argumentacion, name='guardar-argumentacion'),
     url(r'^lista-leyes', listado_leyes, name='lista-leyes'),
+    url(r'^lista-leyes', listado_leyes, name='lista-leyes'),
+
+
+    url(r'^revision/(?P<anotacion_id>\d+)$', RevisionGeneralView, name='revision-general'),
+    url(r'^revision/(?P<anotacion_id>\d+)/parrafo/(?P<parrafo_id>\d+)$', RevisionView, name='revision-especifica'),
+
 
 
 ]

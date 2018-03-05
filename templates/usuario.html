@@ -114,7 +114,7 @@
                 {% if revisiones_pendientes %}
                     {% for revision in revisiones_pendientes %}
                       <li>
-                        <a href="{% url 'documentos_app:crear_revision' revision.id %}">
+                        <a href="{% url 'documentos_app:anotacion-general' revision.id %}">
                             revision.id {{ revision.id }}
                         </a>
                       </li>
