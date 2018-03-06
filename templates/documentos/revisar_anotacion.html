@@ -12,33 +12,30 @@
 {% comment %} SECCION DE SELECCION DE MODO Y DE TEXTO SELECICONADO {% endcomment %}
 <div class="row">
     <div class="col-12">
-      <h1>Modos de selección</h1>
-      <p>A continuación se muestra las acciones que se pueden tomar para etiquetar los textos, las opciones, etc..</p>
+    <br>
+      <span>A continuación se muestra las acciones que se pueden tomar para etiquetar los textos, las opciones, etc..</span>
         {% if get_prev_parrafo %}
             {% if has_argumentacion %}
-                <a class="btn btn-primary btn-xs btn-warning"
+                <a class="btn btn-primary btn-xs btn-warning pull-left"
                    href="{% url 'documentos_app:anotacion-especifica' anotacion.id get_prev_parrafo.id %}">
                     <i class="fa fa-arrow-left"></i>
                 </a>
             {% else %}
-                <button class="btn btn-primary btn-xs btn-warning change-parrafo" name="get_prev_parrafo"
+                <button class="btn btn-primary btn-xs btn-warning pull-left" name="get_prev_parrafo"
                         id="get_prev_parrafo" data-anotacion="{{ anotacion.id }}"
                         data-parrafo="{{ get_prev_parrafo.id }}" data-toggle="modal" data-target="#parrafo-modal">
                     <i class="fa fa-arrow-left"></i>
                 </button>
             {% endif %}
         {% endif %}
-        <button class="btn  btn-xs btn-secondary" name="modo_palabras" id="modo_palabras">Seleccion por Palabra.</button>
-        <button class="btn btn-primary btn-xs" name="modo_texto" id="modo_texto">Seleccionar porción de texto.</button>
-        <button class="btn btn-primary btn-xs btn-success" name="mostrar_pdf" id="mostrar_pdf">Mostrar archivo original.</button>
         {% if get_next_parrafo %}
             {% if has_argumentacion %}
-                <a class="btn btn-primary btn-xs btn-warning"
+                <a class="btn btn-primary btn-xs btn-warning pull-right"
                    href="{% url 'documentos_app:anotacion-especifica' anotacion.id get_next_parrafo.id %}">
                     <i class="fa fa-arrow-right"></i>
                 </a>
             {% else %}
-                <button class="btn btn-primary btn-xs btn-warning change-parrafo" name="get_next_parrafo"
+                <button class="btn btn-primary btn-xs btn-warning change-parrafo pull-right" name="get_next_parrafo"
                         id="get_next_parrafo" data-anotacion="{{ anotacion.id }}"
                         data-parrafo="{{ get_next_parrafo.id }}" data-toggle="modal" data-target="#parrafo-modal">
                     <i class="fa fa-arrow-right"></i>
@@ -78,6 +75,155 @@
         </div>
     </div>
 {% endcomment %}
+
+<br/>
+    {% comment %} PROTOTIPO {% endcomment %}
+<div class="row">
+  <div class="card col-md-7">
+    <div class="card-header">
+      <i class="fa fa-edit"></i>
+        Anotaciones realizadas
+    </div>
+    <div class="list-group list-group-flush small">
+      {% comment %} INSERTAR FOR PARA ITERAR SOBRE LAS ORACIONES/ANOTACIONES  {% endcomment %}
+        <div class="col-xs-12 col-sm-12" style="background-color:#cccccc;">
+            <div class="row">
+                <div class="col-xs-3 col-sm-3">
+                    <b>Tipo</b>
+                </div>
+                <div class="col-xs-5 col-sm-5">
+                    <b>Anotación</b>
+                </div>
+                <div class="col-xs-4 col-sm-4">
+                    <b><span >Acciones</span></b>
+                    <span style="font-size:10px;color:#cccccc;">Alpha testing</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-12">
+            <div class="row">
+              <a class="list-group-item list-group-item-action" href="#">
+                <div class="media">
+                    <div class="col-xs-3 col-sm-3 media" >
+                        <span><b>referencia a articulo</b></span>
+                    </div>
+                    <div class="col-xs-5 col-sm-5 media-body">
+                        <strong>A EL LE GUSTA QMIR JNEWFJ QJSDFJ QEJNEF JKWEWRJKN SDF NJE R</strong>
+                        <div class="text-muted smaller tags_">
+                            TAGS
+                            <span class="tag label label-info">
+                                taco <i class="fa fa-close"></i>
+                                </span>
+                            </span>
+                            &nbsp;
+                            <span class="tag label label-info remove-tag" data-oracion="1" data-key="dorado">
+                                dorado <i class="fa fa-close"></i>
+                                </span>
+                            </span>
+                            &nbsp;
+                            <span class="tag label label-info">
+                                dorado <i class="fa fa-close"></i>
+                                </span>
+                            </span>
+                        </div>
+
+                    </div>
+                    <div class="col-xs-4 col-sm-4">
+                        <i class="fa fa-arrow-left">valido</i><br/>
+                        <i class="fa fa-arrow-right">invalido</i><br/>
+                        <i class="fa fa-amazon">agregar etiqueta</i><br/>
+                    </div>
+                </div>
+              </a>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-12">
+            <div class="row">
+              <a class="list-group-item list-group-item-action" href="#">
+                <div class="media">
+                    <div class="col-xs-3 col-sm-3 media" >
+                        <span><b>referencia a articulo</b></span>
+                    </div>
+                    <div class="col-xs-5 col-sm-5 media-body">
+                        <strong>A EL LE GUSTA QMIR JNEWFJ QJSDFJ QEJNEF JKWEWRJKN SDF NJE R</strong>
+                        <div class="text-muted smaller tags_">
+                            TAGS
+                            <span class="tag label label-info">
+                                taco <i class="fa fa-close"></i>
+                                </span>
+                            </span>
+                            &nbsp;
+                            <span class="tag label label-info remove-tag" data-oracion="1" data-key="dorado">
+                                dorado <i class="fa fa-close"></i>
+                                </span>
+                            </span>
+                            &nbsp;
+                            <span class="tag label label-info">
+                                dorado <i class="fa fa-close"></i>
+                                </span>
+                            </span>
+                        </div>
+
+                    </div>
+                    <div class="col-xs-4 col-sm-4">
+                        <i class="fa fa-arrow-left">valido</i><br/>
+                        <i class="fa fa-arrow-right">invalido</i><br/>
+                        <i class="fa fa-amazon">agregar etiqueta</i><br/>
+                    </div>
+                </div>
+              </a>
+            </div>
+        </div>
+
+    </div>
+    <div class="card-footer small text-muted"></div>
+
+  </div>
+    <div class="col-md-5">
+      <!-- Example Pie Chart Card-->
+      <div class="card mb-3">
+        <div class="card-header">
+          <i class="fa fa-list collapse"></i>
+            Parrafo
+        </div>
+        <div class="card-body" id="">
+            <div style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px;
+            overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;"
+                 class="chartjs-size-monitor">
+                <div class="chartjs-size-monitor-expand"
+                     style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;
+                     pointer-events:none;visibility:hidden;z-index:-1;">
+                    <div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0">
+                    </div>
+                </div>
+                <div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;
+                    overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;">
+                    <div style="position:absolute;width:200%;height:200%;left:0; top:0">
+                    </div>
+                </div>
+                <div class="hidden" id="texto_parrafo" width="747" height="423"
+                     style="max-width:747px; max-height:423px; overflow-y:scroll;">
+                </div>
+
+            </div>
+        </div>
+
+        <div class="card-header" id="mostrar_pdf">
+          <i class="fa fa-pie-chart collapse"></i>
+            Mostrar pdf
+        </div>
+        <div class="card-body"><div style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;" class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div></div><div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:200%;height:200%;left:0; top:0"></div></div></div>
+            <div class="div_archivo_pdf hidden" id="div_archivo_pdf">
+              <div width="auto" height="auto" style="display: block; width: auto; height: auto;">
+                  <embed src="{{ anotacion.get_url_file }}" width="460px" height="460px" />
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+</div>
 
 <br>
         <div class="row">
@@ -669,6 +815,9 @@ $.each(total_palabras, function (key, value) {
     $('#seleccion_texto').append('<span id='+key+'>'+value+'</span> ');
 });
 
+$.each(total_palabras, function (key, value) {
+    $('#texto_parrafo').append('<span id='+key+'>'+value+'</span> ');
+});
 
 
 /// BOTONES DE BACK Y NEXT
@@ -1224,6 +1373,47 @@ $('.btn-argumentacion').on('click', function(){
 $("#add-ley").on('click', function(){
     console.log("agregar ley");
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+$('.remove-tag').on('click', function(input){
+    console.log("remove-tag");
+    console.log($(this).data('oracion'), $(this).data('key') );
+
+
+});
+
+
+
+
+
+
+
 
 
 </script>
