@@ -809,10 +809,15 @@ def convertir_texto_a_bd(texto, modelo=None):
             #numero_final+=suma
             print(numero_inicial, contador_palabras)
 
+
+            #Validar que no este vacio el diccionario
+            if not parrafo_actual:
+                #import ipdb; ipdb.set_trace()
+                print("No habia informacion en este parrafo!!!!!!")
+                continue
+
             #Generando parrafo
-            modelo.crear_parrafo(numero_inicial=numero_inicial,
-                                 numero_final=contador_palabras,
-                                 parrafo_actual=parrafo_actual)
+            modelo.crear_parrafo(numero_inicial=numero_inicial, numero_final=contador_palabras, parrafo_actual=parrafo_actual)
 
             numero_inicial = contador_palabras+1
             parrafos.append(parrafo_actual)

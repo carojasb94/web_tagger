@@ -80,60 +80,97 @@
 {% endcomment %}
 
 <br>
-        <div class="row">
-            <div class="col-lg-8">
-              <!-- Example Bar Chart Card-->
-              <div class="card mb-3">
-                <div class="card-header">
-                  <i class="fa fa-file-text"></i> Información en texto plano</div>
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col-sm-8 my-auto"><div style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;" class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div></div><div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:200%;height:200%;left:0; top:0"></div></div></div>
-                        <div class="hidden" id="seleccion_palabras" width="747" height="423" style="display: block; max-width: 747px; max-height: 423px; overflow-y: auto;">
-                        </div>
-                        <div class="hidden" id="seleccion_texto" width="747" height="423" style=" max-width: 747px; max-height: 423px; overflow-y: scroll;">
-                        </div>
-                    </div>
-                    <div class="col-sm-4">
-                      <div class="small text-muted">
-                          <span class="text-danger error_seleccion" id="error_seleccion"></span>
-                      </div>
+<div class="row">
+    <div class="col-lg-8">
+      <!-- Example Bar Chart Card-->
+      <div class="card mb-3">
+        <div class="card-header">
+          <i class="fa fa-file-text"></i> Información en texto plano</div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-"><div style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;" class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;">
+                <div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div></div><div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;">
+                <div style="position:absolute;width:200%;height:200%;left:0; top:0"></div></div></div>
 
-                      <div class="small text-muted">Seleccionar que tipo de texto se encontro</div>
-                      <div>
-                          <select id="seleccionar_modo">
-                              <option >Seleccionar</option>
-                              {% for clasificacion in clasificaciones %}
-                                  <option value="{{ clasificacion.key }}">{{ clasificacion.nombre_publico }}</option>
-                              {% endfor %}
-                          </select>
-                      </div>
-                      <div class="small text-muted texto_seleccionado " id="referencia_articulo" style="display: none;">
+                <div class="hidden" id="seleccion_palabras" width="747" height="423" style="display: block; max-width: 747px; max-height: 423px; overflow-y: auto;">
+                </div>
+                <div class="hidden" id="seleccion_texto" width="747" height="423" style=" max-width: 747px; max-height: 423px; overflow-y: scroll;">
+                </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="small text-muted">
+                  <span class="text-danger error_seleccion" id="error_seleccion"></span>
+              </div>
+              <div class="small text-muted">Seleccionar que tipo de texto se encontro</div>
+              <div>
+                  <select id="seleccionar_modo">
+                      <option >Seleccionar</option>
+                      {% for clasificacion in clasificaciones %}
+                          <option value="{{ clasificacion.key }}">{{ clasificacion.nombre_publico }}</option>
+                      {% endfor %}
+                  </select>
+              </div>
 
+              <div class="small text-muted texto_seleccionado " id="referencia_articulo" style="display: none;">
+                  <hr>
+                <div class="form-group ">
+                  <label for="inputPassword" class="col-form-label">Agregar Ley </label>
+                    <button class="btn btn-info btn-circle" id="add-ley" type="button"
+                            data-toggle="modal" data-target="#addtag-modal">
+                        <i class="fa fa-plus"></i>
+                    </button>
+                    <input type="text" class="form-control input-sm" id="tag_ley" placeholder="Ley" style=" max-width: 300px;">
+                    <small id="ley-error" class="text-danger"></small>
+                </div>
+
+                <div class="form-group">
+                    <input type="text" class="form-control input-sm" id="tag_numero_articulo" placeholder="Numero de Articulo" style=" max-width: 300px;">
+                    <small id="numero-articulo-error" class="text-danger"></small>
+                </div>
+
+                <div class="form-group">
+                    <input type="text" class="form-control input-sm" id="tag_apartado" placeholder="Apartado" style=" max-width: 300px;">
+                    <small id="passwordHelp" class="text-danger"></small>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control input-sm" id="tag_fraccion" placeholder="Fracción" style=" max-width: 300px;">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control input-sm" id="tag_inciso" placeholder="inciso" style=" max-width: 300px;">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control input-sm" id="tag_parrafo" placeholder="Parrafo (1, 15, etc.)" style=" max-width: 300px;">
+                </div>
+                              {% comment %}
                         <input type="text" id="tag_ley" placeholder="Ley" style="max-width: 150px;" required><span class=" text-danger">*</span>
                         <button class="btn btn-info btn-circle" id="add-ley" type="button"
                                 data-toggle="modal" data-target="#addtag-modal">
                             <i class="fa fa-plus"></i>
                         </button>
 
-
                         <input type="text" id="tag_numero_articulo" placeholder="Numero de Articulo" style="max-width: 150px;" required><span class=" text-danger">*</span>
                         <input type="text" id="tag_apartado" placeholder="Apartado" required>
                           <br/>
                         <input type="text" id="tag_fraccion" placeholder=" Fracción" required>
                           <br/>
-                        <input type="text" id="tag_inciso" placeholder=" inciso" required>
+                        <input type="text" id="tag_inciso" placeholder="inciso" required>
                           <br/>
                         <input type="text" id="tag_parrafo" placeholder="Parrafo (1, 15, etc.)" required>
                         <button class="btn  btn-xs btn-primary pull-right" name="referencia_articulo" id="referencia_articulo_enviar"> Guardar </button>
-                      </div>
+
+                              {% endcomment %}
+                <button class="btn  btn-xs btn-primary pull-right" name="referencia_articulo" id="referencia_articulo_enviar"> Guardar </button>
+              </div>
 
                       <hr>
-                     <div class="small text-muted" id="texto_etiquetado">_</div>
 
                       <div class="mb-0 text-warning">
                           <div class="panel panel-default texto_seleccionado"  id="palabra" style="display:none;">
-                              <input type="text" id="tag_palabra" placeholder="Agregar tag" required>
+                              <button class="btn  btn-xs btn-primary pull-right" name="palabra" id="palabra_enviar"> Guardar </button>
+                            <div class="form-group">
+                                <input type="text" class="form-control input-sm" id="tag_palabra" placeholder="Agregar tag" style=" max-width: 150px;"  required>
+                                <small id="tag_palabra" class="text-danger"></small>
+                            </div>
                               {% comment %}
                               <input type="text" data-role="tagsinput" placeholder="Add tags" class="tag label label-tags " />
                               <div class="bootstrap-tagsinput">
@@ -143,8 +180,6 @@
                                   <input placeholder="" size="1" type="text">
                               </div>
                               {% endcomment %}
-
-                              <button class="btn  btn-xs btn-primary pull-right" name="palabra" id="palabra_enviar"> Guardar </button>
                           </div>
 
                           <div class="panel panel-default texto_seleccionado"  id="referencia_jurisprudencia" style="display: none;">
@@ -163,6 +198,10 @@
 
 
                       </div>
+
+                        {% comment %} DIV DONDE SE GUARDA EL TEXTO SELECCIONADO {% endcomment %}
+                     <div class="small text-muted" id="texto_etiquetado">taco </div>
+
                         {% comment %}
 
                       <hr>
@@ -886,6 +925,29 @@ $('#referencia_articulo_enviar').on('click', function(){
         tag_inciso = $("#tag_inciso").val();
         tag_parrafo = $("#tag_parrafo").val();
 
+    if (!tag_ley){
+        console.log("NO HAY LEY");
+        $('#ley-error').html("Este campo no puede ir vacio");
+        $("#tag_ley").addClass('is-invalid');
+        //return;
+    }
+    else{
+        $('#ley-error').html("");
+        $("#tag_ley").removeClass('is-invalid')
+    }
+
+    if (!tag_numero_articulo){
+        console.log("NO HAY NUMERO DE ARTICULO");
+        //return;
+        $('#numero-articulo-error').html("Este campo no puede ir vacio");
+        $("#tag_numero_articulo").addClass('is-invalid')
+
+    }else{
+        $('#numero-articulo-error').html("");
+        $("#tag_numero_articulo").removeClass('is-invalid')
+
+    }
+
         if (tag_numero_articulo.search(',') != -1){
             $.each(tag_numero_articulo.split(','), function(index, value){
                 if (value){
@@ -895,25 +957,12 @@ $('#referencia_articulo_enviar').on('click', function(){
             });
         }
         else{
+            console.log("solo es un valor");
             //solo es un articulo
-            console.log(value);
             guardar_referencia_articulo(tag_ley,
                     tag_numero_articulo, tag_apartado,
                     tag_fraccion, tag_inciso, tag_parrafo);
-            guardar_referencia_articulo(tag_articulo);
         }
-        $("#tag_ley").val(" ");
-        $("#tag_numero_articulo").val("");
-        $("#tag_apartado").val("");
-        $("#tag_fraccion").val("");
-        $("#tag_inciso").val("");
-        $("#tag_parrafo").val("");
-
-
-        $("#tag_apartado").show();
-        $("#tag_fraccion").show();
-        $("#tag_inciso").show();
-        $("#tag_parrafo").show();
     }
     else{
         console.log("NO HAY UNA SELECCION ACTIVA o esta modificada ")
@@ -1054,7 +1103,7 @@ function guardar_referencia_articulo(tag_ley, tag_numero_articulo,
                 informacion['texto']= JSON.stringify(palabras_seleccionadas);
                 save_anotacion(informacion);
                 // Quitamos los valores anteriores (limpiamos)
-                $("#tag_ley").val(" ");
+                $("#tag_ley").val("");
                 $("#tag_numero_articulo").val("");
                 $("#tag_apartado").val("");
                 $("#tag_fraccion").val("");
@@ -1247,6 +1296,11 @@ function doSomethingWithSelectedText() {
     console.log(div_activo);
 
     if (selectedText) {
+        console.log("texto seleccionado: ");
+        console.log(selectedText);
+        $('#texto_etiquetado').html(selectedText);
+        //alert("Got selected text " + selectedText);
+        /*
         if (div_activo){
             console.log("texto seleccionado: ");
             console.log(selectedText);
@@ -1257,6 +1311,7 @@ function doSomethingWithSelectedText() {
             console.log("NO HAY UN DIV ACTIVO");
             $('.error_seleccion').html("Primero debes seleccionar la acción que realizaras")
         }
+        */
     }
 }
 

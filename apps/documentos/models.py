@@ -215,6 +215,9 @@ class Oracion(models.Model):
 
     is_correcta = models.BooleanField(default=True)
 
+    #parrafo__otro = models.CharField() # = 2
+
+
 
     def __str__(self):
         return "Oracion {0}".format(self.id)
