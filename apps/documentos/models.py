@@ -290,7 +290,7 @@ class TAGPersonal(models.Model):
     #alias = models.CharField(max_length=50, blank=True, null=True)
 
     def __str__(self):
-        return "{0}".format(self.alias)
+        return "{0} - {1}".format(self.id, self.alias)
 
     pass
 

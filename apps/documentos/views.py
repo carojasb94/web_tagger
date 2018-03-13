@@ -544,7 +544,8 @@ def RevisionView(request, anotacion_id, parrafo_id):
     tags_leyes={}
     try:
         #INTENTANDO SACAR LAS TAGS
-        tags_leyes = TAG.objects.filter(subtag=TAG.objects.get(texto="leyes")).values('id','texto')
+        ids_tags = request.user.tags.all().values_list('tag')
+        tags_leyes = TAG.objects.exclude(id__in=ids_tags).filter(subtag=TAG.objects.get(texto="leyes")).values('id','texto')
     except Exception as e:
         print("error al intentar obtener tags de leyes: {0}".format(e))
 
@@ -564,7 +565,7 @@ def RevisionView(request, anotacion_id, parrafo_id):
                            'tags_leyes':tags_leyes,
                            'parrafo':parrafo,
                            'has_argumentacion':has_argumentacion,
-                           'tags_usuario': request.user.tags.all().values('tag__texto','alias'),
+                           'tags_usuario': request.user.tags.all().values('tag__texto','alias','tag'),
                            'oraciones':oraciones
                            })
 

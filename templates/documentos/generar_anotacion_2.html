@@ -195,12 +195,10 @@
                           <div class="texto_seleccionado" id="fecha" style="display: none;">
                               <button class="btn  btn-xs btn-primary pull-right guardar-anotacion" name="texto_articulo" id="fecha_enviar"> Guardar </button>
                           </div>
-
-
                       </div>
 
                         {% comment %} DIV DONDE SE GUARDA EL TEXTO SELECCIONADO {% endcomment %}
-                     <div class="small text-muted" id="texto_etiquetado">taco </div>
+                     <div class="small text-muted" id="texto_etiquetado"></div>
 
                         {% comment %}
 
@@ -533,36 +531,34 @@ var palabras_seleccionadas={};
 var csrftoken = $.cookie('csrftoken');
 var evaluado_por={{ request.user.id }};
 var nueva_tag = {};
+var add_tag_prov = {};
 //console.log(csrftoken, evaluado_por);
 
 
 var global_information = {};
 
 
-console.log("tags_leyes: ");
 /*  INICIALIZANDO AUTOCOMPLETER DE LEYES  */
 var tags_leyes = {{ tags_leyes|jsonify_leyes  }};
 var tags_usuario= {{ tags_usuario|jsonify_leyes }};
-//var tags_leyes = {};
-console.log(tags_leyes);
+//console.log("tags_leyes: ");
+//console.log(tags_leyes);
 //console.log(tags_usuario);
 
 
-var options = {
+var options_tags_ley = {
 	data: tags_usuario,
     //listLocation: "fields",
 	getValue: "tag__texto",
     //theme: "blue-light",
     //theme: "dark",
     adjustWidth: true,
-
 	template: {
 		type: "description",
 		fields: {
 			description: "alias"
         }
     },
-
     list: {
         match: {
             enabled: true
@@ -577,38 +573,9 @@ var options = {
     }
 };
 
-$("#tag_ley").easyAutocomplete(options);
+$("#tag_ley").easyAutocomplete(options_tags_ley);
 //$('.easy-autocomplete').css('width', 'auto');
 
-
-
-var data = [
-    { 'value': '1', 'label': 'one' },
-    { 'value': '2', 'label': 'two' },
-    { 'value': '3', 'label': 'three' }
-];
-
-/*
-$(function () {
-    $('#tag_ley').autocompleter({
-        source: data,
-        //source: tags_leyes,
-        //customLabel:'texto', customValue:'id',
-        customLabel:'label', customValue:'value',
-        //customLabel:'id', customValue:'texto',
-        cache:true, cacheExpires:0,
-        template: '<img src="" alt="Image for autocompleter list item: " />',
-        callback: function (value, index) {
-            if (value in data){
-                console.log("el valor esta en el diccionario:");
-                console.log(value);
-                console.log(data[value])
-            }
-
-            console.log('Value ' + value + ' are selected (with index ' + index + ').');
-        }});
-});
-*/
 
 /*      FUNCIONES PARA EASY AUTOCOMPLETER */
 function guardar_tag_personal(informacion){
@@ -637,20 +604,20 @@ function guardar_tag_personal(informacion){
 $('.btn-guardar-tag').on('click', function(){
     console.log("guardar tag personal");
     if (!isEmpty(nueva_tag)){
-        console.log("ya se guardo la informacion a enviar de ltag");
-        console.log(nueva_tag);
         nueva_tag['alias'] = $('#alias-ley').val();
-        console.log(nueva_tag);
         if (nueva_tag['alias'] == ""){
-            console.log("el alias no se selecciono");
             $('#error-alias').show();
             console.log(nueva_tag);
         }else {
             // reset del diccionario para nueva tag
-            console.log("ya se asigno el alias");
             $('#error-alias').hide();
             guardar_tag_personal(nueva_tag);
             nueva_tag = {};
+            // agregar la tag al otro input
+            add_tag_prov['alias'] = nueva_tag['alias'];
+            tags_usuario.push(add_tag_prov);
+            add_tag_prov={};
+            //$("#tag_ley").easyAutocomplete(options_tags_ley);
             //reset de los inputs
             $('#add_tag_ley').val("");
             $('#alias-ley').val("");
@@ -662,21 +629,19 @@ $('.btn-guardar-tag').on('click', function(){
 
 });
 
-console.log("iniciando easyautocompleteer add_tag_ley");
+//console.log("iniciando easyautocompleteer add_tag_ley");
 var options = {
 	data: tags_leyes,
 	getValue: "texto",
     //theme: "blue-light",
     //theme: "dark",
     //adjustWidth: true,
-
     template: {
         type: "custom",
         method: function(value, item) {
             return "<span class='item-" + item.id + "' ></span>" + value;
         }
     },
-
     list: {
         match: {
             enabled: true
@@ -685,17 +650,19 @@ var options = {
         onChooseEvent: function(a, b) {
             console.log("Click !!!!!!");
             nueva_tag['tag'] = $("#add_tag_ley").getSelectedItemData().id;
-            console.log($("#add_tag_ley").getSelectedItemIndex());
-            console.log($("#add_tag_ley").getSelectedItemData());
+            //console.log($("#add_tag_ley").getSelectedItemIndex());
+            //console.log($("#add_tag_ley").getSelectedItemData());
+            //agregando a los tags del usuario la tag agregada
+            add_tag_prov = {tag:$("#add_tag_ley").getSelectedItemData().id,
+                tag__texto:$("#add_tag_ley").getSelectedItemData().texto };
+            nueva_tag['tag']['id'] = $("#add_tag_ley").getSelectedItemData().id;
+            nueva_tag['tag']['texto'] = $("#add_tag_ley").getSelectedItemData().texto;
         }
-
     }
 };
 
 $("#add_tag_ley").easyAutocomplete(options);
 $('.easy-autocomplete').css('width', 'auto');
-
-console.log("termino easyautocompleteer");
 
 
 /// GENERANDO LA INFORMACION
@@ -712,20 +679,15 @@ $.each(total_palabras, function (key, value) {
 
 /// BOTONES DE BACK Y NEXT
 $('.change-parrafo').on('click', function(element){
-    console.log($(this).data('anotacion'));
-    console.log($(this).data('parrafo'));
     siguiente_parrafo=$(this).data('parrafo');
     //abrir modal
-
 });
-
 
 
 
 // CUANDO SE DE CLICK A SELECCION DE PALABRAS (BOTONES)
 // SE OCULTA EL TEXTO PLANO
 $('#modo_palabras').on('click', function(){
-    console.log("Click a modo palabras");
     $('#seleccion_texto').hide();
     //$('#texto_plano').hide();
     {% comment %}
@@ -747,7 +709,6 @@ $('#modo_palabras').on('click', function(){
 // CUANDO SE DE CLICK A SELECCION TEXTO
 // SE OCULTAN LAS PALABRAS (BOTONES)
 $('#modo_texto').on('click', function(){
-    console.log("Click a modo modo_texto");
     $('#seleccion_palabras').hide();
     //$('#texto_plano').hide();
     {% comment %}
@@ -770,8 +731,6 @@ $('#seleccionar_modo').on('change', function(){
     var seleccion = $('#seleccionar_modo');
     var div_seleccion = '#'+seleccion.val(); //referencia_articulo;
     div_activo = $(div_seleccion);
-    console.log(seleccion);
-    console.log(seleccion.val());
 
     $('.texto_seleccionado').hide();
     $('.error_seleccion').html("");
@@ -793,15 +752,9 @@ $('.palabra').on('click', function(palabra){
 
 //AGREGANDO FUNCIONALIDAD A LOS 'BOTONES' de las palabras
 $('#seleccion_palabras').on('click', '.palabra', function(a,b,c){
-    console.log("DIO CLICK A UNA PALABRA (delegacion de funcion)");
-    console.log(a, b, c );
-    console.log(this.id, $(this).html());
-        //$('.error_seleccion').toggle();
+    //console.log("DIO CLICK A UNA PALABRA (delegacion de funcion)");
 
-        //console.log($(div_activo).appendTo('.'+seleccion_activa));
-        console.log($(div_activo).find('.'+seleccion_activa));
         if (this.id in palabras_seleccionadas){
-            console.log("YA EXISTE ESE ELEMNTO");
             delete palabras_seleccionadas[this.id];
             $(this).removeClass('color3');
             sorted_words = Object.values(palabras_seleccionadas);
@@ -903,9 +856,7 @@ $('#palabra_enviar').on('click', function(){
         //enviar_anotacion('referencia_jurisprudencia');
         tag_palabra = $("#tag_palabra").val();
         guardar_palabra(tag_palabra);
-
         //enviar_anotacion('referencia_jurisprudencia');
-
     }
     else{
         console.log("NO HAY UNA SELECCION ACTIVA o esta modificada ");
@@ -926,7 +877,6 @@ $('#referencia_articulo_enviar').on('click', function(){
         tag_parrafo = $("#tag_parrafo").val();
 
     if (!tag_ley){
-        console.log("NO HAY LEY");
         $('#ley-error').html("Este campo no puede ir vacio");
         $("#tag_ley").addClass('is-invalid');
         //return;
@@ -937,7 +887,6 @@ $('#referencia_articulo_enviar').on('click', function(){
     }
 
     if (!tag_numero_articulo){
-        console.log("NO HAY NUMERO DE ARTICULO");
         //return;
         $('#numero-articulo-error').html("Este campo no puede ir vacio");
         $("#tag_numero_articulo").addClass('is-invalid')
@@ -957,7 +906,6 @@ $('#referencia_articulo_enviar').on('click', function(){
             });
         }
         else{
-            console.log("solo es un valor");
             //solo es un articulo
             guardar_referencia_articulo(tag_ley,
                     tag_numero_articulo, tag_apartado,
@@ -1019,7 +967,6 @@ function guardar_palabra(tag_palabra){
         };
     global_information = informacion;
     if (seleccion_activa =='texto'){
-        console.log("ENVIAR TEXTO PLANO");
         informacion['texto'] = $('#texto_etiquetado').html();
         if (informacion){
             $('.error_seleccion').hide();
@@ -1033,8 +980,6 @@ function guardar_palabra(tag_palabra){
         }
     }
     else if (seleccion_activa =='palabras'){
-        console.log("ENVIAR JSON DE PALABRAS");
-        console.log(palabras_seleccionadas);
         if (!isEmpty(palabras_seleccionadas)){
             $('.error_seleccion').hide();
             informacion['texto']= JSON.stringify(palabras_seleccionadas);
@@ -1045,12 +990,9 @@ function guardar_palabra(tag_palabra){
             $('.error_seleccion').html("No puedes dejar el texto seleccionado en blanco");
             $('.error_seleccion').show();
         }
-
     }
     else{
-
     }
-
 
 }
 
@@ -1096,8 +1038,6 @@ function guardar_referencia_articulo(tag_ley, tag_numero_articulo,
             }
         }
         else if (seleccion_activa =='palabras'){
-            console.log("ENVIAR JSON DE PALABRAS");
-            console.log(palabras_seleccionadas);
             if (!isEmpty(palabras_seleccionadas)){
                 $('.error_seleccion').hide();
                 informacion['texto']= JSON.stringify(palabras_seleccionadas);
@@ -1119,7 +1059,6 @@ function guardar_referencia_articulo(tag_ley, tag_numero_articulo,
         }
     }
     else {
-        console.log("NO esta ley o numero de articulo");
         $('.error_seleccion').html("Los campos con * son requeridos (Ley y Numero de articulo)");
         $('.error_seleccion').show();
     }
@@ -1134,7 +1073,6 @@ function enviar_anotacion(clasificacion){
         };
     global_information = informacion;
     if (seleccion_activa =='texto'){
-        console.log("ENVIAR TEXTO PLANO");
         informacion['texto'] = $('#texto_etiquetado').html();
         if (informacion){
             $('.error_seleccion').hide();
@@ -1147,8 +1085,6 @@ function enviar_anotacion(clasificacion){
         }
     }
     else if (seleccion_activa =='palabras'){
-        console.log("ENVIAR JSON DE PALABRAS");
-        console.log(palabras_seleccionadas);
         if (!isEmpty(palabras_seleccionadas)){
             $('.error_seleccion').hide();
             informacion['texto']= JSON.stringify(palabras_seleccionadas);
@@ -1158,30 +1094,21 @@ function enviar_anotacion(clasificacion){
             $('.error_seleccion').html("No puedes dejar el texto seleccionado en blanco");
             $('.error_seleccion').show();
         }
-
     }
     else{
-
     }
-
 }
 
 function save_anotacion(informacion){
-    console.log("INFORMACION A ENVIAR: ");
-    console.log(informacion);
-
     $.ajax({url: '/guardar-anotacion',
         type:'post', //dataType: 'json', contentType:'application/json',
         data: informacion,
         //data: JSON.stringify(informacion),
         //data: informacion,
         success: function(result){
-            console.log("EXITO AL GUARDAR ");
-            console.log(result);
             /* cambiar el color de las palabras que fueron seleccionadas*/
             var seleccionadas= $('.color3');
-            console.log("palabras con clase color3");
-            console.log(seleccionadas);
+
             $(seleccionadas).removeClass('color3');
             // agregando el color 2, dde las palabras ya etiquetadas
             $(seleccionadas).addClass('color2');
@@ -1201,23 +1128,16 @@ function save_anotacion(informacion){
 
 /*          FUNCION PARA GUARDAR EL PARRAFO ACTUAL Y OBTENER EL SIGUIENTE */
 function terminar_documento(){
-    console.log("INFORMACION A ENVIAR: ");
-
     $.ajax({url: '/anotacion/'+id_anotacion+'/terminar',
         type:'patch', //dataType: 'json', contentType:'application/json',
         data: {is_done:true},
         //data: JSON.stringify(informacion),
         //data: informacion,
         success: function(result){
-            console.log("EXITO AL ACTUALIZAR PARRAFO");
-            console.log(result);
             //location.reload();
             window.location.replace("/perfil");
         },
         error:function(error){
-            console.log("ERROR AL ACTUALIZAR PARRAFO ");
-            //console.log(error.responseText);
-            console.log(error.responseText);
         }
     });
 }
@@ -1228,21 +1148,16 @@ function terminar_documento(){
 //});
 
 function guardar_argumentacion(id_parrafo, calificacion){
-    console.log("guardar_Argumentacion, INFORMACION A ENVIAR: ");
-
     $.ajax({url: '/parrafo/'+id_parrafo+'/guardar-argumentacion',
         type:'post', //dataType: 'json', contentType:'application/json',
         data: {parrafo: id_parrafo, calificacion:calificacion},
         //data: JSON.stringify(informacion),
         //data: informacion,
         success: function(result){
-            console.log("EXITO AL ACTUALIZAR PARRAFO");
-            console.log(result);
             //location.reload();
             window.location.href = '/anotacion/'+id_anotacion+'/parrafo/'+siguiente_parrafo;
         },
         error:function(error){
-            console.log("ERROR AL ACTUALIZAR PARRAFO ");
             //console.log(error.responseText);
             console.log(error.responseText);
         }
@@ -1251,15 +1166,12 @@ function guardar_argumentacion(id_parrafo, calificacion){
 
 
 $('.btn-argumentacion').on('click', function(){
-    console.log("le dio click al boton del modal de siguiente parrafo");
     if ($(this).data('evaluado')==true){
-        console.log("Acepto envuar la evaluacion, validar que lo califico");
         if (!argumentacion_parrafo){
             console.log("Falta seleccionar nivel de argumentacion");
         }else{
             console.log("Evaluo con "+argumentacion_parrafo+" el parrafo");
             guardar_argumentacion(id_parrafo, argumentacion_parrafo);
-
         }
     }else {
         window.location.href = '/anotacion/'+id_anotacion+'/parrafo/'+siguiente_parrafo;
@@ -1269,9 +1181,7 @@ $('.btn-argumentacion').on('click', function(){
 
 
 
-
 $("#add-ley").on('click', function(){
-    console.log("agregar ley");
 });
 
 
