@@ -1,5 +1,5 @@
 # web_tagger
-Aplicacion en Django para clasificar escritos legales
+Django App to clasify legal papers
 
-
+# dependencies
 pip install django-widget-tweaks
